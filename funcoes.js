@@ -13,7 +13,7 @@ async function autenticado = function autenticado(req, res, next){
     await jwt.verify(token, process.env.SECRET, function(err, decoded){
 
         if(err){
-            res.json({erro: true, msg: "Token inválido!"}).sendStatus(500);
+            res.json({erro: true, msg: "Erro interno do servidor!"}).sendStatus(500);
         }
 
         if(decoded === undefined){
