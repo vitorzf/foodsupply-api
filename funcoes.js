@@ -11,14 +11,13 @@ module.exports.autenticado = function autenticado(req, res, next){
     jwt.verify(token, process.env.SECRET, function(err, decoded){
 
         if(err){
-            res.json({erro: true, msg: "Token inválido!"}).sendStatus(500);
+            res.status(500).json({erro: true, msg: "Token inválido!"});
         }
 
         if(decoded === undefined){
-            res.json({erro: true, msg: "Token inválido!"}).sendStatus(401);
+            res.status(401).json({erro: true, msg: "Token inválido!"});
         }
         
-        req.userId = decoded.id;
-        next();
+        next(decoded.id);
     });
 };

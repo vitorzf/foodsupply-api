@@ -4,7 +4,7 @@ require("dotenv-safe").config()
 // const jwt = require("jsonwebtoken")
 const app = express();
 
-const porta = 3000;
+const porta = 3001;
 
 let usuarios = require("./controllers/usuarioController");
 
