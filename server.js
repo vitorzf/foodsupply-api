@@ -6,7 +6,7 @@ const app = express();
 
 const porta = 3001;
 
-let usuarios = require("./controllers/usuarioController");
+let usuarios = require("./routes/Usuario");
 
 app.use(express.json()); 
 app.use(express.urlencoded({extended: true}));
