@@ -2,7 +2,6 @@ const express = require("express");
 const md5 = require("md5");
 const sql = require("../modules/mysql");
 const jwt = require("jsonwebtoken");
-const funcoes = require("../funcoes");
 
 const login = async function(req, res){
 
@@ -34,10 +33,6 @@ const login = async function(req, res){
     }
       
 }
-
-// router.get("/login", funcoes.autenticado, (req, res, next) => {
-//     console.log(next);
-// });
 
 const registro = async function(req, res){
 
@@ -72,10 +67,6 @@ const registro = async function(req, res){
     }
 
 }
-
-// router.post("/logout", (req, res) => {
-//     res.json({erro: false, token: null});
-// });
 
 module.exports = {
     login,
