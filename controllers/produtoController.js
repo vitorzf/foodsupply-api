@@ -32,7 +32,7 @@ const cadastrarProduto = async function(req, res){
         let produto_id = await sql.insert("produto", produto, true);
 
         if(produto_id.length != 0){
-            res.status(200).json({erro: false, msg: "Produto Criado com Sucesso!", produto_id: produto_id})
+            res.json({erro: false, msg: "Produto Criado com Sucesso!", produto_id: produto_id})
         }else{
             res.status(500).json({erro: true, msg:"Erro ao cadastrar Produto!"});
         }
@@ -81,7 +81,7 @@ const atualizarProduto = async function(req, res){
 
         if(atualizar){
 
-            res.status(200).json({erro: false, msg: "Produto Atualizado com Sucesso!", produto_id: produto_id})
+            res.json({erro: false, msg: "Produto Atualizado com Sucesso!", produto_id: produto_id})
 
         }else{
 
@@ -100,7 +100,7 @@ const listaUnidadesMedida = async function(req, res){
         
         let busca_unidades = await sql.execSQL("SELECT * FROM unidade_medida");
 
-        res.status(200).json({erro: false, retorno: busca_unidades});
+        res.json({erro: false, retorno: busca_unidades});
 
     } catch (error) {
         res.status(500).json({erro: true, msg:error});
@@ -114,7 +114,7 @@ const listaCategorias = async function(req, res){
 
         let busca_categorias = await sql.execSQL("SELECT * FROM categorias ORDER BY nome ASC");
 
-        res.status(200).json({erro:false, retorno:busca_categorias});
+        res.json({erro:false, retorno:busca_categorias});
         
     } catch (error) {
         res.status(500).json({erro: true, msg:error});
@@ -140,16 +140,53 @@ const listaTodosProdutos = async function(req, res){
                             um.sigla as unidade_medida_sigla,
                             um.nome as unidade_medida_nome,
                             u.id as vendedor_id,
-                            u.usuario as vendedor
+                            COALESCE(u.nome_vendedor, u.usuario) as nome_vendedor
                         FROM produto p
                         INNER JOIN usuario u ON u.id = p.usuario_id
                         INNER JOIN categorias c ON c.id = p.categoria_id
-                        INNER JOIN unidade_medida um ON um.id = p.medida_id`;
+                        INNER JOIN unidade_medida um ON um.id = p.medida_id
+                        WHERE p.ativo = 1`;
 
         let busca_produtos = await sql.execSQL(txtSql);
 
-        res.status(200).json({erro:false, retorno:busca_produtos});
+        res.json({erro:false, retorno:busca_produtos});
         
+    } catch (error) {
+        res.status(500).json({erro: true, msg:error});
+    }
+
+}
+
+const listaProdutosVendedor = async function(req, res){
+
+    let dados = req.params;
+
+    try {
+
+        let txtSql = `SELECT p.id,
+                            p.sku,
+                            p.titulo,
+                            p.descricao,
+                            p.preco,
+                            p.estoque,
+                            p.fotos,
+                            p.data_hora_cadastro,
+                            c.id as categoria_id,
+                            c.nome as categoria_nome,
+                            um.id as unidade_medida_id,
+                            um.sigla as unidade_medida_sigla,
+                            um.nome as unidade_medida_nome
+                        FROM produto p
+                        INNER JOIN usuario u ON u.id = p.usuario_id
+                        INNER JOIN categorias c ON c.id = p.categoria_id
+                        INNER JOIN unidade_medida um ON um.id = p.medida_id
+                        WHERE p.ativo = 1
+                        and p.usuario_id = ?`;
+        
+        let produtos = await sql.execSQL(txtSql, [dados.vendedor_id]);
+
+        res.json({erro: false, retorno: produtos});
+
     } catch (error) {
         res.status(500).json({erro: true, msg:error});
     }
@@ -161,5 +198,6 @@ module.exports = {
     atualizarProduto,
     listaUnidadesMedida,
     listaCategorias,
-    listaTodosProdutos
+    listaTodosProdutos,
+    listaProdutosVendedor
 }
