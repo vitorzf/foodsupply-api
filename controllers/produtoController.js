@@ -4,6 +4,45 @@ const sql = require("../modules/mysql");
 const jwt = require("jsonwebtoken");
 const funcoes = require("../funcoes");
 
+async function listaProduto(produto_id, usuario_id){
+    try {
+
+        let txtSql = `SELECT p.id,
+                            p.sku,
+                            p.titulo,
+                            p.descricao,
+                            p.preco,
+                            p.estoque,
+                            p.fotos,
+                            p.data_hora_cadastro,
+                            c.id as categoria_id,
+                            c.nome as categoria_nome,
+                            um.id as unidade_medida_id,
+                            um.sigla as unidade_medida_sigla,
+                            um.nome as unidade_medida_nome,
+                            u.id as vendedor_id,
+                            COALESCE(u.nome_vendedor, u.usuario) as nome_vendedor
+                        FROM produto p
+                        INNER JOIN usuario u ON u.id = p.usuario_id
+                        INNER JOIN categorias c ON c.id = p.categoria_id
+                        INNER JOIN unidade_medida um ON um.id = p.medida_id
+                        WHERE p.ativo = 1
+                        and p.id = ?
+                        and p.usuario_id = ?`;
+
+        let busca_produtos = await sql.execSQL(txtSql, [produto_id, usuario_id]);
+
+        if(busca_produtos.length == 0){
+            return null
+        }
+
+        return busca_produtos[0];
+        
+    } catch (error) {
+        return error;
+    }
+
+}
 
 const cadastrarProduto = async function(req, res){
     
@@ -82,6 +121,59 @@ const atualizarProduto = async function(req, res){
         if(atualizar){
 
             res.json({erro: false, msg: "Produto Atualizado com Sucesso!", produto_id: produto_id})
+
+        }else{
+
+            res.status(500).json({erro: true, msg:"Erro ao atualizar Produto!"});
+
+        }
+    } catch (error) {
+        res.status(500).json({erro: true, msg:error});
+    }
+
+}
+
+const atualizarDadosProduto = async function(req, res){
+
+    funcoes.autenticado(req, res);
+
+    let produto_id = req.params.produto_id;
+
+    let usuario_id = req.usuario;
+
+    let produto = req.body;
+
+    produto.usuario_id = usuario_id;
+
+    try {
+
+        let busca_produto_existente = await sql.execSQL(
+            "SELECT id FROM produto WHERE id = ? AND usuario_id = ?",
+            [produto_id, usuario_id]
+        );
+        
+        if(busca_produto_existente.length == 0){
+    
+            return res.status(404).json({erro:true, msg:`Produto não encontrado`});
+    
+        }
+
+        let condicao = {
+            id: produto_id,
+            usuario_id: usuario_id
+        };
+
+        let atualizar = await sql.update("produto", produto, condicao);
+
+        if(atualizar){
+
+            dados_produto = await listaProduto(produto_id, usuario_id);
+
+            if(typeof(dados_produto) != "object"){
+                res.status(500).json({erro: true, msg:"Erro ao atualizar Produto!"});
+            }
+
+            res.json({erro: false, msg: "Produto Atualizado com Sucesso!", produto: dados_produto})
 
         }else{
 
@@ -196,6 +288,7 @@ const listaProdutosVendedor = async function(req, res){
 module.exports = {
     cadastrarProduto,
     atualizarProduto,
+    atualizarDadosProduto,
     listaUnidadesMedida,
     listaCategorias,
     listaTodosProdutos,

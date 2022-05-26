@@ -14,7 +14,7 @@ const definirNomeVendedor = async function(req, res){
         let update = await sql.update("usuario", dados, {id: usuario_id});    
         
         if(update){
-            res.status(200).json({erro: false, msg:"Nome de Vendedor Atualizado com Sucesso!"});
+            res.json({erro: false, msg:"Nome de Vendedor Atualizado com Sucesso!"});
         }else{
             res.status(500).json({erro: true, msg:"Ocorreu algum erro ao alterar o nome do Vendedor"});
         }

@@ -245,17 +245,17 @@ const listarEnderecosUsuario = async function(req, res){
 
     try {
 
-        let enderecos = await sql.execSQL(`SELECT   id,
-                                                        cep,
-                                                        uf,
-                                                        cidade,
-                                                        bairro,
-                                                        endereco,
-                                                        usuario_id,
-                                                        ativo,
-                                                        principal
-                                                FROM endereco
-                                                WHERE usuario_id = ?`,[req.usuario]);
+        let enderecos = await sql.execSQL(`SELECT id,
+                                                cep,
+                                                uf,
+                                                cidade,
+                                                bairro,
+                                                endereco,
+                                                usuario_id,
+                                                ativo,
+                                                principal
+                                        FROM endereco
+                                        WHERE usuario_id = ?`,[req.usuario]);
 
         return res.json({erro: false, retorno:enderecos});
         
