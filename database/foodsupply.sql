@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: 15-Maio-2022 às 20:08
+-- Generation Time: 26-Maio-2022 às 14:02
 -- Versão do servidor: 10.1.29-MariaDB
 -- PHP Version: 7.2.0
 
@@ -21,19 +21,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `foodsupply`
 --
-
--- --------------------------------------------------------
-
---
--- Estrutura da tabela `carrinho`
---
-
-CREATE TABLE `carrinho` (
-  `id` int(11) NOT NULL,
-  `usuario_id` int(11) NOT NULL,
-  `produto_id` int(11) NOT NULL,
-  `quantidade` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -80,7 +67,8 @@ CREATE TABLE `endereco` (
 INSERT INTO `endereco` (`id`, `cep`, `uf`, `cidade`, `bairro`, `endereco`, `numero`, `usuario_id`, `principal`, `ativo`) VALUES
 (1, '17511801', 'SP', 'Marília', 'Jardim Lavínia', 'Amélia Volta Laplechade', 57, 9, 0, 1),
 (2, '17511801', 'SP', 'Teresina', 'Direceu Arcoverde II', 'Quadra 333', 1, 9, 0, 1),
-(3, '17511801', 'SP', 'Teresina', 'Direceu Arcoverde II', 'Quadra 333', 3, 9, 1, 1);
+(3, '17511801', 'SP', 'Teresina', 'Direceu Arcoverde II', 'Quadra 333', 3, 9, 1, 1),
+(4, '17511801', 'SP', 'Teresina', 'Direceu Arcoverde II', 'Quadra 333', 1, 10, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -108,7 +96,7 @@ CREATE TABLE `produto` (
 --
 
 INSERT INTO `produto` (`id`, `sku`, `titulo`, `descricao`, `fotos`, `estoque`, `preco`, `categoria_id`, `medida_id`, `usuario_id`, `data_hora_cadastro`, `ativo`) VALUES
-(3, 'ProdTeste1', 'Produto de teste 1', 'Este é o teste de descrição do produto, pode dar tudo errado ou tudo certo, vai la saber', '[{\"url\":\"https://talcha.vteximg.com.br/arquivos/ids/170030-1000-1000/teste.jpg?v=637685222639430000\",\"ordem\":0},{\"url\":\"https://static3.tcdn.com.br/img/img_prod/99941/produto_teste_auaha_24522_1_f816ad73890b2db46e6e460c44ae5d22.png\",\"ordem\":1}]', 100, '140.50', 1, 2, 9, '2022-05-13 05:18:14', 1);
+(3, 'ProdTeste1', 'Produto de teste 1', 'Este é o teste de descrição do produto, pode dar tudo errado ou tudo certo, vai la saber', '[{\"url\":\"https://talcha.vteximg.com.br/arquivos/ids/170030-1000-1000/teste.jpg?v=637685222639430000\",\"ordem\":0},{\"url\":\"https://static3.tcdn.com.br/img/img_prod/99941/produto_teste_auaha_24522_1_f816ad73890b2db46e6e460c44ae5d22.png\",\"ordem\":1}]', 30, '200.00', 1, 2, 9, '2022-05-13 05:18:14', 1);
 
 -- --------------------------------------------------------
 
@@ -155,7 +143,7 @@ CREATE TABLE `usuario` (
 
 INSERT INTO `usuario` (`id`, `email`, `usuario`, `nome_vendedor`, `senha`, `foto`, `ativo`) VALUES
 (9, 'igovitorbr@gmail.com', 'vitorzf', 'Vitor Store', '202cb962ac59075b964b07152d234b70', NULL, 1),
-(10, 'monychan@gmail.com', 'monygasai', NULL, 'aa1bf4646de67fd9086cf6c79007026c', NULL, 1);
+(10, 'monychan@gmail.com', 'monygasai', NULL, '202cb962ac59075b964b07152d234b70', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -165,10 +153,21 @@ INSERT INTO `usuario` (`id`, `email`, `usuario`, `nome_vendedor`, `senha`, `foto
 
 CREATE TABLE `venda` (
   `id` int(11) NOT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'Aguardando Pagamento',
+  `identificador_pagamento` varchar(32) NOT NULL,
+  `vendedor_id` int(11) NOT NULL,
   `usuario_id` int(11) NOT NULL,
   `endereco_id` int(11) NOT NULL,
+  `valor_frete` decimal(10,2) NOT NULL DEFAULT '0.00',
   `valor_total` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Extraindo dados da tabela `venda`
+--
+
+INSERT INTO `venda` (`id`, `status`, `identificador_pagamento`, `vendedor_id`, `usuario_id`, `endereco_id`, `valor_frete`, `valor_total`) VALUES
+(1, 'Aguardando Pagamento', 'f92b017e-9275-4e08-b927-69b25170', 9, 9, 4, '100.00', 6100);
 
 -- --------------------------------------------------------
 
@@ -188,14 +187,6 @@ CREATE TABLE `venda_produto` (
 --
 -- Indexes for dumped tables
 --
-
---
--- Indexes for table `carrinho`
---
-ALTER TABLE `carrinho`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `produto_id` (`produto_id`),
-  ADD KEY `usuario_id` (`usuario_id`);
 
 --
 -- Indexes for table `categorias`
@@ -236,7 +227,8 @@ ALTER TABLE `usuario`
 ALTER TABLE `venda`
   ADD PRIMARY KEY (`id`),
   ADD KEY `endereco_id` (`endereco_id`),
-  ADD KEY `usuario_id` (`usuario_id`);
+  ADD KEY `usuario_id` (`usuario_id`),
+  ADD KEY `vendedor_id` (`vendedor_id`);
 
 --
 -- Indexes for table `venda_produto`
@@ -251,12 +243,6 @@ ALTER TABLE `venda_produto`
 --
 
 --
--- AUTO_INCREMENT for table `carrinho`
---
-ALTER TABLE `carrinho`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `categorias`
 --
 ALTER TABLE `categorias`
@@ -266,7 +252,7 @@ ALTER TABLE `categorias`
 -- AUTO_INCREMENT for table `endereco`
 --
 ALTER TABLE `endereco`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `produto`
@@ -290,7 +276,7 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT for table `venda`
 --
 ALTER TABLE `venda`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `venda_produto`
@@ -301,13 +287,6 @@ ALTER TABLE `venda_produto`
 --
 -- Constraints for dumped tables
 --
-
---
--- Limitadores para a tabela `carrinho`
---
-ALTER TABLE `carrinho`
-  ADD CONSTRAINT `carrinho_ibfk_1` FOREIGN KEY (`produto_id`) REFERENCES `produto` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `carrinho_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Limitadores para a tabela `endereco`
@@ -327,7 +306,8 @@ ALTER TABLE `produto`
 --
 ALTER TABLE `venda`
   ADD CONSTRAINT `venda_ibfk_1` FOREIGN KEY (`endereco_id`) REFERENCES `endereco` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `venda_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+  ADD CONSTRAINT `venda_ibfk_2` FOREIGN KEY (`usuario_id`) REFERENCES `usuario` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `venda_ibfk_3` FOREIGN KEY (`vendedor_id`) REFERENCES `usuario` (`id`) ON DELETE NO ACTION ON UPDATE CASCADE;
 
 --
 -- Limitadores para a tabela `venda_produto`
