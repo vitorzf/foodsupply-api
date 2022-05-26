@@ -53,6 +53,51 @@ const insert = async function(tabela, obj, retorna_id = false){
 
 }
 
+const _delete = async function (tabela, condicao){
+    return new Promise((resolve, reject) => {
+
+        let where = "";
+        let sql = "";
+
+        Object.keys(condicao).forEach(function(key) {
+            
+            if(where.length != 0){
+                where += " AND ";
+            }
+
+            where += `${key} = '${condicao[key]}'`;
+
+        });
+
+        set = set.slice(0, -1);
+        
+        sql = `DELETE FROM ${tabela} WHERE ${where}`;
+
+        let retorno = null;
+
+        con.query(sql, (err, result) => {
+            
+            if(err){
+                console.log(`Erro ao executar SQL\n SQL: ${err.sql}\n Mensagem: ${err.sqlMessage}`);
+                reject(err);
+            }else{
+
+                if(result.affectedRows != 0){
+                    
+                    retorno = true;
+    
+                }else{
+                    retorno = false;
+                }
+
+                resolve(retorno);
+            }
+
+        });
+
+    });
+}
+
 const update = async function (tabela, params, condicao){
 
     return new Promise((resolve, reject) => {
@@ -124,5 +169,6 @@ module.exports = {
     con,
     insert,
     update,
+    _delete,
     execSQL
 }
