@@ -32,26 +32,23 @@ async function dados_vendedor(vendedor_id){
 
 async function verificar_produtos_venda(dados){
 
-
     let produtos_retorno = [];
 
     try {
 
         for(const produto_venda of dados.produtos){
             let txtSql = `select
-                                    p.*,
-                                    CASE WHEN p.estoque >= ${produto_venda.quantidade} THEN true
-                                    ELSE false END as tem_estoque,
-                                    '${produto_venda.quantidade}' as quantidade_venda,
-                                    true as existe,
-                                    ${produto_venda.quantidade} * p.preco as valor_total
+                                p.*,
+                                CASE WHEN p.estoque >= ${produto_venda.quantidade} THEN true
+                                ELSE false END as tem_estoque,
+                                '${produto_venda.quantidade}' as quantidade_venda,
+                                true as existe,
+                                ${produto_venda.quantidade} * p.preco as valor_total
                             from produto p
                             where p.id = ?
                             and p.usuario_id = ?`;
 
-            
-                            
-            let dados_produto = await sql.execSQL(txtSql, [produto_venda.id, dados.usuario_id]);
+            let dados_produto = await sql.execSQL(txtSql, [produto_venda.id, dados.vendedor]);
 
             if(dados_produto.length == 0){
                 produtos_retorno.push({id:produto_venda.id, existe: false, tem_estoque: true, total_venda: 0});
@@ -126,6 +123,11 @@ const inserirVenda = async function(req, res){
             return;
         }
 
+        if(usuario_id == dados.vendedor){
+            res.status(400).json({erro: true, retorno:[{msg:"Você não pode comprar da sua Loja!"}]});
+            return;
+        }
+
         if(dados.produtos.length == 0){
             res.status(400).json({erro: true, retorno:[{msg:"Nenhum produto enviado no Pedido!"}]});
             return;
@@ -153,39 +155,38 @@ const inserirVenda = async function(req, res){
 
         if(erros.length != 0){
             res.status(400).json({erro: true, retorno:erros});
+            return;
         }
 
-        total_venda += dados.frete;
-
         let dados_venda = {
-            status: "Aguardando Pagamento",
+            status: "aguardando_vendedor",
             identificador_pagamento: uuid.v4(),
             vendedor_id: dados.vendedor,
             usuario_id: usuario_id,
             endereco_id: dados.endereco,
-            valor_frete: dados.frete,
             valor_total: total_venda
         };
 
-        let inserir_venda = sql.insert("venda", dados_venda, true);
+        let inserir_venda = await sql.insert("venda", dados_venda, true);
 
         if(!inserir_venda){
-            res.status(500).json({erro: true, retorno: [{msg:"Erro ao inserir pedido!"}]});    
+            res.status(500).json({erro: true, retorno: [{msg:"Erro ao inserir pedido!"}]});
+            return;
         }
-
+    
         let venda_id = inserir_venda;
 
         for(const produto_venda of verifica_produto){
-            
+
             let dados_produto_venda = {
                 venda_id: venda_id,
                 produto_id: produto_venda.id,
                 quantidade: produto_venda.quantidade_venda,
                 valor_unitario: produto_venda.preco,
-                valor_total: produto_venda.total_venda
+                valor_total: produto_venda.valor_total
             }
 
-            let inserir_produto = sql.insert("venda", dados_produto_venda);
+            let inserir_produto = await sql.insert("venda_produto", dados_produto_venda);
 
             if(!inserir_produto){
                 sql._delete("venda",{id: venda_id});
@@ -196,6 +197,8 @@ const inserirVenda = async function(req, res){
             }
 
         }
+
+        res.json({erro: false, pedido_id: venda_id});
 
     } catch (error) {
         console.log(error);
