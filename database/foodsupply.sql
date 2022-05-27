@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: 26-Maio-2022 às 14:02
+-- Generation Time: 27-Maio-2022 às 08:11
 -- Versão do servidor: 10.1.29-MariaDB
 -- PHP Version: 7.2.0
 
@@ -21,6 +21,37 @@ SET time_zone = "+00:00";
 --
 -- Database: `foodsupply`
 --
+
+DELIMITER $$
+--
+-- Functions
+--
+CREATE DEFINER=`root`@`localhost` FUNCTION `retornaDescricaoStatus` (`status` VARCHAR(40)) RETURNS VARCHAR(40) CHARSET latin1 BEGIN
+
+   DECLARE status_retorno VARCHAR(40);
+
+   SET status_retorno = (
+       CASE
+        WHEN status = 'aguardando_vendedor' 
+        	THEN 'Aguardando Confirmação do Vendedor'
+        WHEN status = 'aguardando_pagamento' 
+        	THEN 'Aguardando Pagamento'
+        WHEN status = 'pagamento_aprovado' 
+        	THEN 'Pagamento Aprovado'
+        WHEN status = 'enviado' 
+        	THEN 'Pedido Enviado'
+        WHEN status = 'entregue' 
+        	THEN 'Pedido Entregue'
+        ELSE status
+    END);
+
+RETURN status_retorno;
+
+   RETURN status_retorno;
+
+END$$
+
+DELIMITER ;
 
 -- --------------------------------------------------------
 
@@ -96,7 +127,8 @@ CREATE TABLE `produto` (
 --
 
 INSERT INTO `produto` (`id`, `sku`, `titulo`, `descricao`, `fotos`, `estoque`, `preco`, `categoria_id`, `medida_id`, `usuario_id`, `data_hora_cadastro`, `ativo`) VALUES
-(3, 'ProdTeste1', 'Produto de teste 1', 'Este é o teste de descrição do produto, pode dar tudo errado ou tudo certo, vai la saber', '[{\"url\":\"https://talcha.vteximg.com.br/arquivos/ids/170030-1000-1000/teste.jpg?v=637685222639430000\",\"ordem\":0},{\"url\":\"https://static3.tcdn.com.br/img/img_prod/99941/produto_teste_auaha_24522_1_f816ad73890b2db46e6e460c44ae5d22.png\",\"ordem\":1}]', 30, '200.00', 1, 2, 9, '2022-05-13 05:18:14', 1);
+(3, 'ProdTeste1', 'Produto de teste 1', 'Este é o teste de descrição do produto, pode dar tudo errado ou tudo certo, vai la saber', '[{\"url\":\"https://talcha.vteximg.com.br/arquivos/ids/170030-1000-1000/teste.jpg?v=637685222639430000\",\"ordem\":0},{\"url\":\"https://static3.tcdn.com.br/img/img_prod/99941/produto_teste_auaha_24522_1_f816ad73890b2db46e6e460c44ae5d22.png\",\"ordem\":1}]', 1005, '200.00', 1, 2, 9, '2022-05-13 05:18:14', 1),
+(4, 'ProdTeste1', 'Produto de teste 4', 'Este é o teste de descrição do produto, pode dar tudo errado ou tudo certo, vai la saber', '[{\"url\":\"https://talcha.vteximg.com.br/arquivos/ids/170030-1000-1000/teste.jpg?v=637685222639430000\",\"ordem\":0},{\"url\":\"https://static3.tcdn.com.br/img/img_prod/99941/produto_teste_auaha_24522_1_f816ad73890b2db46e6e460c44ae5d22.png\",\"ordem\":1}]', 1100, '120.50', 1, 2, 10, '2022-05-26 23:38:34', 1);
 
 -- --------------------------------------------------------
 
@@ -167,7 +199,9 @@ CREATE TABLE `venda` (
 --
 
 INSERT INTO `venda` (`id`, `status`, `identificador_pagamento`, `vendedor_id`, `usuario_id`, `endereco_id`, `valor_frete`, `valor_total`) VALUES
-(1, 'Aguardando Pagamento', 'f92b017e-9275-4e08-b927-69b25170', 9, 9, 4, '100.00', 6100);
+(16, 'aguardando_vendedor', '0fcb7606-afb6-4f1b-98f8-3f7797ed', 10, 9, 4, '0.00', 12050),
+(17, 'aguardando_pagamento', '802141b3-17be-47b3-a4c9-dbfc2dac', 10, 9, 4, '160.00', 12210),
+(18, 'aguardando_vendedor', '9fcff94d-f9ba-4e9c-a6e8-2c36e1c0', 10, 9, 4, '0.00', 12050);
 
 -- --------------------------------------------------------
 
@@ -183,6 +217,15 @@ CREATE TABLE `venda_produto` (
   `valor_unitario` decimal(10,2) NOT NULL,
   `valor_total` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Extraindo dados da tabela `venda_produto`
+--
+
+INSERT INTO `venda_produto` (`id`, `venda_id`, `produto_id`, `quantidade`, `valor_unitario`, `valor_total`) VALUES
+(8, 16, 4, 100, '120.50', '12050.00'),
+(9, 17, 4, 100, '120.50', '12050.00'),
+(10, 18, 4, 100, '120.50', '12050.00');
 
 --
 -- Indexes for dumped tables
@@ -258,7 +301,7 @@ ALTER TABLE `endereco`
 -- AUTO_INCREMENT for table `produto`
 --
 ALTER TABLE `produto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `unidade_medida`
@@ -276,13 +319,13 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT for table `venda`
 --
 ALTER TABLE `venda`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `venda_produto`
 --
 ALTER TABLE `venda_produto`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- Constraints for dumped tables
