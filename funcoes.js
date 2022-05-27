@@ -7,17 +7,12 @@ const autenticado = function autenticado(req, res){
 
     if(!token){
         res.status(401).json({erro: true, msg: "Token necessário!"});
+        return;
     }
 
     jwt.verify(token, process.env.SECRET, function(err, decoded){
 
-
         if(err){
-            res.status(500).json({erro: true, msg: "Sem autorização!"});
-            return;
-        }
-
-        if(decoded === undefined){
             res.status(401).json({erro: true, msg: "Sem autorização!"});
             return;
         }

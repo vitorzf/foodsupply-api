@@ -186,26 +186,26 @@ const confirmarVenda = async function(req, res){
             return;
         }
 
-        let verifica_produto = await verificar_produtos_venda(lista_produtos_pedido);
+        // let verifica_produto = await verificar_produtos_venda(lista_produtos_pedido);
 
-        let erros = [];
+        // let erros = [];
 
-        for(const produto_venda of verifica_produto){
+        // for(const produto_venda of verifica_produto){
             
-            if(produto_venda.existe == false){
-                erros.push({produto: produto_venda.id, msg: `Produto não encontrado`});
-            }
+        //     if(produto_venda.existe == false){
+        //         erros.push({produto: produto_venda.id, msg: `Produto não encontrado`});
+        //     }
 
-            if(produto_venda.tem_estoque == false){
-                erros.push({produto: produto_venda.id, msg: `Produto sem estoque suficiente (${produto_venda.quantidade_venda}): Estoque atual: ${produto_venda.estoque}`});
-            }
+        //     if(produto_venda.tem_estoque == false){
+        //         erros.push({produto: produto_venda.id, msg: `Produto sem estoque suficiente (${produto_venda.quantidade_venda}): Estoque atual: ${produto_venda.estoque}`});
+        //     }
 
-        }
+        // }
 
-        if(erros.length != 0){
-            res.status(400).json({erro: true, retorno:erros});
-            return;
-        }
+        // if(erros.length != 0){
+        //     res.status(400).json({erro: true, retorno:erros});
+        //     return;
+        // }
 
         let busca_dados_pedido = await sql.execSQL("SELECT * FROM venda WHERE id = ?", [params.venda_id]);
 
@@ -235,25 +235,25 @@ const confirmarVenda = async function(req, res){
             res.status(500).json({erro: true, msg:"Erro ao alterar Pedido"});
         }
 
-        if(ja_alterou_anteriormente){
-            res.json({erro: false, msg:"Pedido alterado com sucesso!"});
-            return;
-        }
+        // if(ja_alterou_anteriormente){
+        //     res.json({erro: false, msg:"Pedido alterado com sucesso!"});
+        //     return;
+        // }
 
-        for(const produto_venda of verifica_produto){
+        // for(const produto_venda of verifica_produto){
 
-            let update_produto = {
-                estoque: parseFloat(produto_venda.estoque) - parseFloat(produto_venda.quantidade_venda),
-            };
+        //     let update_produto = {
+        //         estoque: parseFloat(produto_venda.estoque) - parseFloat(produto_venda.quantidade_venda),
+        //     };
 
-            let fez_update = await sql.update('produto',update_produto, {id: produto_venda.id});
+        //     let fez_update = await sql.update('produto',update_produto, {id: produto_venda.id});
 
-            if(!fez_update){
-                res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
-                return;
-            }
+        //     if(!fez_update){
+        //         res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
+        //         return;
+        //     }
 
-        }
+        // }
         
         res.json({erro: false, msg:"Pedido alterado com sucesso!"});
 
