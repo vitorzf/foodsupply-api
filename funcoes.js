@@ -14,10 +14,12 @@ const autenticado = function autenticado(req, res){
 
         if(err){
             res.status(500).json({erro: true, msg: "Sem autorização!"});
+            return;
         }
 
         if(decoded === undefined){
             res.status(401).json({erro: true, msg: "Sem autorização!"});
+            return;
         }
         
         req.usuario = decoded.id;

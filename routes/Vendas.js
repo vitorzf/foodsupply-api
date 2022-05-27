@@ -1,8 +1,14 @@
 const express = require("express");
-const controller = require("../controllers/vendasController");
+const controller = require("../controllers/vendaController");
 
 const router = express.Router();
 
-router.post("/vendas", controller.inserirVenda);
+router.get("/vendas", controller.listaVendas);
+
+router.get("/vendas/:status_pedido", controller.listaVendas);
+
+router.get("/venda/:venda_id", controller.dadosVenda);
+
+router.put("/venda/:venda_id/confirmar", controller.confirmarVenda);
 
 module.exports = router;
