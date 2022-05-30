@@ -241,7 +241,19 @@ const listaTodosProdutos = async function(req, res){
 
         let busca_produtos = await sql.execSQL(txtSql);
 
-        res.json({erro:false, retorno:busca_produtos});
+        let retorno = [];
+
+        for(const produto of busca_produtos){
+            
+            let fotos = JSON.parse(produto.fotos);
+
+            produto.fotos = fotos;
+
+            retorno.push(produto);
+
+        }
+
+        res.json({erro:false, retorno:retorno});
         
     } catch (error) {
         res.status(500).json({erro: true, msg:error});
