@@ -261,6 +261,56 @@ const listaTodosProdutos = async function(req, res){
 
 }
 
+const listaDadosProdutos = async function(req, res){
+
+    try {
+
+        let produto_id = req.params.produto_id;
+
+        let txtSql = `SELECT p.id,
+                            p.sku,
+                            p.titulo,
+                            p.descricao,
+                            p.preco,
+                            p.estoque,
+                            p.fotos,
+                            p.data_hora_cadastro,
+                            c.id as categoria_id,
+                            c.nome as categoria_nome,
+                            um.id as unidade_medida_id,
+                            um.sigla as unidade_medida_sigla,
+                            um.nome as unidade_medida_nome,
+                            u.id as vendedor_id,
+                            COALESCE(u.nome_vendedor, u.usuario) as nome_vendedor
+                        FROM produto p
+                        INNER JOIN usuario u ON u.id = p.usuario_id
+                        INNER JOIN categorias c ON c.id = p.categoria_id
+                        INNER JOIN unidade_medida um ON um.id = p.medida_id
+                        WHERE p.ativo = 1
+                        and p.id = '${produto_id}'`;
+
+        let busca_produtos = await sql.execSQL(txtSql);
+
+        let retorno = [];
+
+        for(const produto of busca_produtos){
+            
+            let fotos = JSON.parse(produto.fotos);
+
+            produto.fotos = fotos;
+
+            retorno.push(produto);
+
+        }
+
+        res.json({erro:false, retorno:retorno[0]});
+        
+    } catch (error) {
+        res.status(500).json({erro: true, msg:error});
+    }
+
+}
+
 const listaProdutosVendedor = async function(req, res){
 
     let dados = req.params;
@@ -304,5 +354,6 @@ module.exports = {
     listaUnidadesMedida,
     listaCategorias,
     listaTodosProdutos,
-    listaProdutosVendedor
+    listaProdutosVendedor,
+    listaDadosProdutos
 }

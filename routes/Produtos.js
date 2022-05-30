@@ -17,6 +17,8 @@ router.get("/produtos/categorias", controller.listaCategorias);
 
 router.get("/produtos", controller.listaTodosProdutos);
 
+router.get("/produtos/:produto_id", controller.listaDadosProdutos);
+
 router.get("/produtos/vendedor/:vendedor_id", controller.listaProdutosVendedor);
 
 module.exports = router;
