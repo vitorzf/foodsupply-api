@@ -9,7 +9,7 @@ const login = async function(req, res){
     let dados = req.body;
 
     try {
-        let result = await sql.execSQL("SELECT * FROM usuario WHERE email = ? AND senha = ? and ativo = 1",[dados.email, md5(dados.senha)]);
+        let result = await sql.execSQL("SELECT id, email, usuario, nome_vendedor, foto FROM usuario WHERE email = ? AND senha = ? and ativo = 1",[dados.email, md5(dados.senha)]);
         
         if(result.length == 0){
 
@@ -23,7 +23,7 @@ const login = async function(req, res){
                 expiresIn:'30d'
             });
 
-            res.json({erro: false, token: token});
+            res.json({erro: false, token: token, usuario: result[0]});
 
         }
 
@@ -61,7 +61,11 @@ const registro = async function(req, res){
             expiresIn:'30d'
         });
 
-        res.json({erro: false, token: token});
+        delete dados.senha;
+
+        dados.nome_vendedor = "";
+
+        res.json({erro: false, token: token, usuario: dados});
 
     } catch (error) {
         res.status(500).json({erro: true, msg:"Erro interno do servidor"});
