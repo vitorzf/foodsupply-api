@@ -6,6 +6,10 @@ const definirNomeVendedor = async function(req, res){
 
     funcoes.autenticado(req, res);
 
+    if(!req.autenticado){
+        return;
+    }
+
     let usuario_id = req.usuario;
 
     let dados = req.body;

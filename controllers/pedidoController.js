@@ -3,10 +3,10 @@ const sql = require("../modules/mysql");
 const funcoes = require("../funcoes");
 const uuid = require("uuid");
 
-async function dados_vendedor(vendedor_id){
+async function dados_vendedor(vendedor_id) {
 
     try {
-        
+
         let lista_vendedor = await sql.execSQL(`SELECT
                                                     u.id,
                                                     u.email,
@@ -18,7 +18,7 @@ async function dados_vendedor(vendedor_id){
                                                 WHERE u.ativo = 1
                                                 AND u.id = ?`, [vendedor_id]);
 
-        if(lista_vendedor.length == 0){
+        if (lista_vendedor.length == 0) {
             return false;
         }
 
@@ -30,13 +30,13 @@ async function dados_vendedor(vendedor_id){
 
 }
 
-async function verificar_produtos_venda(dados){
+async function verificar_produtos_venda(dados) {
 
     let produtos_retorno = [];
 
     try {
 
-        for(const produto_venda of dados.produtos){
+        for (const produto_venda of dados.produtos) {
             let txtSql = `select
                                 p.*,
                                 CASE WHEN p.estoque >= ${produto_venda.quantidade} THEN true
@@ -50,22 +50,22 @@ async function verificar_produtos_venda(dados){
 
             let dados_produto = await sql.execSQL(txtSql, [produto_venda.id, dados.vendedor]);
 
-            if(dados_produto.length == 0){
-                produtos_retorno.push({id:produto_venda.id, existe: false, tem_estoque: true, total_venda: 0});
-            }else{
+            if (dados_produto.length == 0) {
+                produtos_retorno.push({ id: produto_venda.id, existe: false, tem_estoque: true, total_venda: 0 });
+            } else {
                 produtos_retorno.push(dados_produto[0]);
             }
         }
 
         return produtos_retorno;
-        
+
     } catch (error) {
-        return {msg: "Erro ao salvar pedido"};
+        return { msg: "Erro ao salvar pedido" };
     }
 
 }
 
-async function retorna_dados_produto(vendedor, produto_id){
+async function retorna_dados_produto(vendedor, produto_id) {
     try {
 
         let txtSql = `SELECT p.sku,
@@ -87,68 +87,72 @@ async function retorna_dados_produto(vendedor, produto_id){
 
         let busca_produtos = await sql.execSQL(txtSql, [produto_id, vendedor]);
 
-        if(busca_produtos.length == 0){
+        if (busca_produtos.length == 0) {
             return false
         }
 
         return busca_produtos[0];
-        
+
     } catch (error) {
         return false;
     }
 }
 
-const inserirPedido = async function(req, res){
+const inserirPedido = async function (req, res) {
 
     funcoes.autenticado(req, res);
+
+    if (!req.autenticado) {
+        return;
+    }
 
     let usuario_id = req.usuario;
 
     let dados = req.body;
 
     try {
-        
+
         dados.usuario_id = usuario_id;
 
         let vendedor_existe = await dados_vendedor(dados.vendedor);
 
-        if(!vendedor_existe){
-            res.status(400).json({erro: true, retorno:[{msg:"Vendedor não encontrado!"}]});
+        if (!vendedor_existe) {
+            res.status(400).json({ erro: true, retorno: [{ msg: "Vendedor não encontrado!" }] });
             return;
         }
 
-        if(usuario_id == dados.vendedor){
-            res.status(400).json({erro: true, retorno:[{msg:"Você não pode comprar da sua Loja!"}]});
+        if (usuario_id == dados.vendedor) {
+            res.status(400).json({ erro: true, retorno: [{ msg: "Você não pode comprar da sua Loja!" }] });
             return;
         }
 
-        if(dados.produtos.length == 0){
-            res.status(400).json({erro: true, retorno:[{msg:"Nenhum produto enviado no Pedido!"}]});
+        if (dados.produtos.length == 0) {
+            res.status(400).json({ erro: true, retorno: [{ msg: "Nenhum produto enviado no Pedido!" }] });
             return;
         }
 
         let verifica_produto = await verificar_produtos_venda(dados);
 
         let erros = [];
-        
+
         let total_venda = 0;
 
-        for(const produto_venda of verifica_produto){
-            
-            if(produto_venda.existe == false){
-                erros.push({produto: produto_venda.id, msg: `Produto não encontrado`});
+        for (const produto_venda of verifica_produto) {
+
+            if (produto_venda.existe == false) {
+                erros.push({ produto: produto_venda.id, msg: `Produto não encontrado` });
             }
 
-            if(produto_venda.tem_estoque == false){
-                erros.push({produto: produto_venda.id, msg: `Produto sem estoque suficiente (${produto_venda.quantidade_venda}): Estoque atual: ${produto_venda.estoque}`});
+            if (produto_venda.tem_estoque == false) {
+                erros.push({ produto: produto_venda.id, msg: `Produto sem estoque suficiente (${produto_venda.quantidade_venda}): Estoque atual: ${produto_venda.estoque}` });
             }
 
             total_venda += produto_venda.valor_total;
 
         }
 
-        if(erros.length != 0){
-            res.status(400).json({erro: true, retorno:erros});
+        if (erros.length != 0) {
+            res.status(400).json({ erro: true, retorno: erros });
             return;
         }
 
@@ -163,14 +167,14 @@ const inserirPedido = async function(req, res){
 
         let inserir_venda = await sql.insert("venda", dados_venda, true);
 
-        if(!inserir_venda){
-            res.status(500).json({erro: true, retorno: [{msg:"Erro ao inserir pedido!"}]});
+        if (!inserir_venda) {
+            res.status(500).json({ erro: true, retorno: [{ msg: "Erro ao inserir pedido!" }] });
             return;
         }
-    
+
         let venda_id = inserir_venda;
 
-        for(const produto_venda of verifica_produto){
+        for (const produto_venda of verifica_produto) {
 
             let dados_produto_venda = {
                 venda_id: venda_id,
@@ -182,28 +186,32 @@ const inserirPedido = async function(req, res){
 
             let inserir_produto = await sql.insert("venda_produto", dados_produto_venda);
 
-            if(!inserir_produto){
-                sql._delete("venda",{id: venda_id});
-                sql._delete("venda_produto", {venda_id: venda_id});
+            if (!inserir_produto) {
+                sql._delete("venda", { id: venda_id });
+                sql._delete("venda_produto", { venda_id: venda_id });
 
-                res.status(500).json({erro: true, retorno: [{msg:"Ocorreu algum erro ao inserir a venda!"}]});
+                res.status(500).json({ erro: true, retorno: [{ msg: "Ocorreu algum erro ao inserir a venda!" }] });
                 return;
             }
 
         }
 
-        res.json({erro: false, pedido_id: venda_id});
+        res.json({ erro: false, pedido_id: venda_id });
 
     } catch (error) {
         console.log(error);
-        res.status(500).json({erro: true, retorno: [{msg:"Erro interno do servidor!"}]});
+        res.status(500).json({ erro: true, retorno: [{ msg: "Erro interno do servidor!" }] });
     }
 
 }
 
-const listaPedidos = async function(req, res){
+const listaPedidos = async function (req, res) {
 
     funcoes.autenticado(req, res);
+
+    if (!req.autenticado) {
+        return;
+    }
 
     let params = req.params;
 
@@ -212,7 +220,7 @@ const listaPedidos = async function(req, res){
     try {
         let status_filtro = "";
 
-        if(params.status_pedido !== undefined){
+        if (params.status_pedido !== undefined) {
             status_filtro = ` AND v.status = '${params.status_pedido}' `;
         }
 
@@ -236,26 +244,30 @@ const listaPedidos = async function(req, res){
                         WHERE v.usuario_id = ?
                         ${status_filtro}`, [params.usuario_id]);
 
-        res.json({erro: false, pedidos: pedidos})
+        res.json({ erro: false, pedidos: pedidos })
 
-        
+
     } catch (error) {
-        res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
+        res.status(500).json({ erro: true, msg: "Erro interno do servidor!" });
     }
-    
+
 }
 
-const dadosPedido = async function(req, res){
+const dadosPedido = async function (req, res) {
 
     funcoes.autenticado(req, res);
+
+    if (!req.autenticado) {
+        return;
+    }
 
     let params = req.params;
 
     params.usuario_id = req.usuario;
 
-    if(params.pedido_id === undefined){
+    if (params.pedido_id === undefined) {
 
-        res.status(400).json({erro: true, msg:"Pedido ID não enviado!"});
+        res.status(400).json({ erro: true, msg: "Pedido ID não enviado!" });
         return;
 
     }
@@ -277,15 +289,15 @@ const dadosPedido = async function(req, res){
                                             WHERE v.id = ?
                                             and v.usuario_id = ?`, [params.pedido_id, params.usuario_id]);
 
-        if(result_venda.length == 0){
-            res.status(404).json({erro: true, msg:"Pedido não encontrado!"});
+        if (result_venda.length == 0) {
+            res.status(404).json({ erro: true, msg: "Pedido não encontrado!" });
             return;
         }
 
         let result_produtos = await sql.execSQL(`SELECT produto_id, quantidade, valor_unitario, valor_total FROM venda_produto WHERE venda_id = ?`, [params.pedido_id]);
 
-        if(result_produtos.length == 0){
-            res.status(404).json({erro: true, msg:"Produtos do pedido não encontrados!"});
+        if (result_produtos.length == 0) {
+            res.status(404).json({ erro: true, msg: "Produtos do pedido não encontrados!" });
             return;
         }
 
@@ -293,12 +305,12 @@ const dadosPedido = async function(req, res){
 
         let lista_produtos = [];
 
-        for(const produto_venda of result_produtos){
+        for (const produto_venda of result_produtos) {
 
             let retorno_dados_produto = await retorna_dados_produto(dados_venda.vendedor_id, produto_venda.produto_id);
-            
-            if(!result_produtos.length){
-                res.status(404).json({erro: true, msg:"Produto do pedido não encontrado!"});
+
+            if (!result_produtos.length) {
+                res.status(404).json({ erro: true, msg: "Produto do pedido não encontrado!" });
                 return;
             }
 
@@ -310,8 +322,8 @@ const dadosPedido = async function(req, res){
 
         let endereco_entrega = await sql.execSQL(`SELECT cep, uf, cidade, bairro, endereco, numero FROM endereco WHERE id = ?`, [dados_venda.endereco_id]);
 
-        if(endereco_entrega.length == 0){
-            res.status(404).json({erro: true, msg:"Endereço de entrega não encontrado!"});
+        if (endereco_entrega.length == 0) {
+            res.status(404).json({ erro: true, msg: "Endereço de entrega não encontrado!" });
             return;
         }
 
@@ -322,16 +334,160 @@ const dadosPedido = async function(req, res){
 
         const retorno = Object.assign({}, dados_venda, info_adicional);
 
-        res.json({erro: false, pedido: retorno});
-        
+        res.json({ erro: false, pedido: retorno });
+
     } catch (error) {
-        res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
+        res.status(500).json({ erro: true, msg: "Erro interno do servidor!" });
     }
-    
+
 }
+
+
+const rejeitarFrete = async function (req, res) {
+
+    funcoes.autenticado(req, res);
+
+    if (!req.autenticado) {
+        return;
+    }
+
+    let params = req.params;
+
+    params.usuario_id = req.usuario;
+
+    try {
+
+        let _pedido = await sql.execSQL(`SELECT id, valor_frete, valor_total
+                                        FROM venda 
+                                        WHERE id = ? 
+                                        and usuario_id = ? 
+                                        and status = 'aguardando_pagamento'`, [params.pedido_id, params.usuario_id]);
+
+        if (_pedido.length == 0) {
+            res.status(404).json({ erro: true, retorno: [{ msg: "Pedido não encontrado" }] });
+            return;
+        }
+
+        _pedido = _pedido[0];
+
+        let dados_pedido = {};
+
+        dados_pedido.status = 'aguardando_vendedor';
+        dados_pedido.valor_total = _pedido.valor_total - _pedido.valor_frete;
+        dados_pedido.valor_frete = 0;
+
+        let update_pedido = await sql.update("venda", dados_pedido, { id: params.pedido_id });
+
+        if (!update_pedido) {
+            return res.status(500).json({ erro: true, msg: "Erro ao alterar Pedido" });
+        }
+
+        res.json({ erro: false, msg: "Pedido alterado com sucesso!" });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ erro: true, msg: "Erro interno do servidor!" });
+    }
+
+}
+
+
+const aceitarFrete = async function (req, res) {
+
+    funcoes.autenticado(req, res);
+
+    if (!req.autenticado) {
+        return;
+    }
+
+    let params = req.params;
+
+    params.usuario_id = req.usuario;
+
+    try {
+
+        let _pedido = await sql.execSQL(`SELECT id, valor_frete, valor_total
+                                        FROM venda 
+                                        WHERE id = ? 
+                                        and usuario_id = ? 
+                                        and status = 'aguardando_pagamento'`, [params.pedido_id, params.usuario_id]);
+
+        if (_pedido.length == 0) {
+            res.status(404).json({ erro: true, retorno: [{ msg: "Pedido não encontrado" }] });
+            return;
+        }
+
+        _pedido = _pedido[0];
+
+        let result_produtos = await sql.execSQL(`SELECT vp.produto_id, p.sku, p.titulo, vp.quantidade, vp.valor_unitario, vp.valor_total 
+                                                FROM venda_produto vp
+                                                INNER JOIN produto p on p.id = vp.produto_id 
+                                                WHERE vp.venda_id = ?`, [params.pedido_id]);
+
+        if (result_produtos.length == 0) {
+            res.status(404).json({ erro: true, msg: "Produtos do pedido não encontrados!" });
+            return;
+        }
+
+        let dados_pedido = {
+            "additional_info": {
+                "items": [
+                    {
+                        "id": "PR0001",
+                        "title": "Point Mini",
+                        "description": "Producto Point para cobros con tarjetas mediante bluetooth",
+                        "picture_url": "https://http2.mlstatic.com/resources/frontend/statics/growth-sellers-landings/device-mlb-point-i_medium@2x.png",
+                        "category_id": "electronics",
+                        "quantity": 1,
+                        "unit_price": 58.8
+                    }
+                ],
+                "payer": {
+                    "first_name": "Test",
+                    "last_name": "Test",
+                    "phone": {
+                        "area_code": 11,
+                        "number": "987654321"
+                    },
+                    "address": {}
+                },
+                "shipments": {
+                    "receiver_address": {
+                        "zip_code": "12312-123",
+                        "state_name": "Rio de Janeiro",
+                        "city_name": "Buzios",
+                        "street_name": "Av das Nacoes Unidas",
+                        "street_number": 3003
+                    }
+                },
+                "barcode": {}
+            },
+            "description": "Payment for product",
+            "external_reference": "MP0001",
+            "installments": 1,
+            "metadata": {},
+            "payer": {
+                "entity_type": "individual",
+                "type": "customer",
+                "identification": {}
+            },
+            "payment_method_id": "visa",
+            "transaction_amount": 58.8
+        };
+
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ erro: true, msg: "Erro interno do servidor!" });
+    }
+
+}
+
 
 module.exports = {
     inserirPedido,
     listaPedidos,
-    dadosPedido
+    dadosPedido,
+    rejeitarFrete,
+    aceitarFrete
 }

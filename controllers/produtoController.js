@@ -48,6 +48,10 @@ const cadastrarProduto = async function(req, res){
     
     funcoes.autenticado(req, res);
 
+    if(!req.autenticado){
+        return;
+    }
+
     let usuario_id = req.usuario;
 
     let produto = req.body;
@@ -88,6 +92,10 @@ const cadastrarProduto = async function(req, res){
 const atualizarProduto = async function(req, res){
 
     funcoes.autenticado(req, res);
+
+    if(!req.autenticado){
+        return;
+    }
 
     let produto_id = req.params.produto_id;
 
@@ -136,6 +144,10 @@ const atualizarProduto = async function(req, res){
 const atualizarDadosProduto = async function(req, res){
 
     funcoes.autenticado(req, res);
+
+    if(!req.autenticado){
+        return;
+    }
 
     let produto_id = req.params.produto_id;
 
@@ -218,6 +230,13 @@ const listaTodosProdutos = async function(req, res){
 
     try {
 
+        let filtros = "";
+        let get = req.query;
+
+        if(get.titulo !== undefined){
+            filtros += ` AND p.titulo like '%${get.titulo}%' `;
+        }
+
         let txtSql = `SELECT p.id,
                             p.sku,
                             p.titulo,
@@ -237,7 +256,8 @@ const listaTodosProdutos = async function(req, res){
                         INNER JOIN usuario u ON u.id = p.usuario_id
                         INNER JOIN categorias c ON c.id = p.categoria_id
                         INNER JOIN unidade_medida um ON um.id = p.medida_id
-                        WHERE p.ativo = 1`;
+                        WHERE p.ativo = 1
+                        ${filtros}`;
 
         let busca_produtos = await sql.execSQL(txtSql);
 

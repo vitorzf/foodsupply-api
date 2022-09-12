@@ -11,4 +11,8 @@ router.get("/pedidos/:status_pedido", controller.listaPedidos);
 
 router.get("/pedido/:pedido_id", controller.dadosPedido);
 
+router.put("/pedido/rejeitar_frete/:pedido_id", controller.rejeitarFrete);
+
+router.post("/pedido/aceitar_frete/:pedido_id", controller.aceitarFrete);
+
 module.exports = router;
