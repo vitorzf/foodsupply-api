@@ -419,7 +419,7 @@ const aceitarFrete = async function (req, res) {
 
         _pedido = _pedido[0];
 
-        let result_produtos = await sql.execSQL(`SELECT vp.produto_id, p.sku, p.titulo, vp.quantidade, vp.valor_unitario, vp.valor_total 
+        let result_produtos = await sql.execSQL(`SELECT vp.produto_id, p.sku, p.fotos, p.titulo, p.descricao, vp.quantidade, vp.valor_unitario, vp.valor_total 
                                                 FROM venda_produto vp
                                                 INNER JOIN produto p on p.id = vp.produto_id 
                                                 WHERE vp.venda_id = ?`, [params.pedido_id]);
@@ -429,28 +429,51 @@ const aceitarFrete = async function (req, res) {
             return;
         }
 
+        let result_comprador = await sql.execSQL(`SELECT u.*, e.*  FROM venda v 
+                                                INNER JOIN usuario u on u.id = v.usuario_id
+                                                INNER JOIN endereco e on e.id = v.endereco_id
+                                                WHERE v.id = ?;`, [params.pedido_id]);
+        
+        if (result_comprador.length == 0) {
+            res.status(404).json({ erro: true, msg: "Comprador do pedido não encontrado!" });
+            return;
+        }
+
+        objetoComprador = result_comprador[0];
+
+        console.log('comprador', result_comprador);
+
+        let comprador = {
+            "first_name": cobjetoComprador.nome,
+            "last_name": cobjetoComprador.sobrenome,
+            "phone": {},
+            "address": {
+                "zipcode": cobjetoComprador.cep,
+                "street_name": cobjetoComprador.endereco,
+                "street_number": cobjetoComprador.numero,
+            }
+        };
+
+        let itensPedido = [];
+        
+        result_produtos.forEach(element => {
+            let prodFoto = JSON.parse(element.fotos);
+
+            let prodObjeto = {
+                "id": element.sku,
+                "title": element.titulo,
+                "description": element.descricao,
+                "picture_url": prodFoto[0].url,
+                "quantity": element.quantidade,
+                "unit_price": element.valor_unitario
+            }
+            itensPedido.push(prodObjeto);
+        }); 
+
         let dados_pedido = {
             "additional_info": {
-                "items": [
-                    {
-                        "id": "PR0001",
-                        "title": "Point Mini",
-                        "description": "Producto Point para cobros con tarjetas mediante bluetooth",
-                        "picture_url": "https://http2.mlstatic.com/resources/frontend/statics/growth-sellers-landings/device-mlb-point-i_medium@2x.png",
-                        "category_id": "electronics",
-                        "quantity": 1,
-                        "unit_price": 58.8
-                    }
-                ],
-                "payer": {
-                    "first_name": "Test",
-                    "last_name": "Test",
-                    "phone": {
-                        "area_code": 11,
-                        "number": "987654321"
-                    },
-                    "address": {}
-                },
+                "items": itensPedido,
+                "payer": comprador,
                 "shipments": {
                     "receiver_address": {
                         "zip_code": "12312-123",
