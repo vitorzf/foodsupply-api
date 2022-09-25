@@ -1,6 +1,5 @@
 const express = require("express");
 const sql = require("../modules/mysql");
-const funcoes = require("../funcoes");
 const uuid = require("uuid");
 
 async function dados_vendedor(vendedor_id) {
@@ -99,12 +98,6 @@ async function retorna_dados_produto(vendedor, produto_id) {
 }
 
 const inserirPedido = async function (req, res) {
-
-    funcoes.autenticado(req, res);
-
-    if (!req.autenticado) {
-        return;
-    }
 
     let usuario_id = req.usuario;
 
@@ -207,12 +200,6 @@ const inserirPedido = async function (req, res) {
 
 const listaPedidos = async function (req, res) {
 
-    funcoes.autenticado(req, res);
-
-    if (!req.autenticado) {
-        return;
-    }
-
     let params = req.params;
 
     params.usuario_id = req.usuario;
@@ -254,12 +241,6 @@ const listaPedidos = async function (req, res) {
 }
 
 const dadosPedido = async function (req, res) {
-
-    funcoes.autenticado(req, res);
-
-    if (!req.autenticado) {
-        return;
-    }
 
     let params = req.params;
 
@@ -345,12 +326,6 @@ const dadosPedido = async function (req, res) {
 
 const rejeitarFrete = async function (req, res) {
 
-    funcoes.autenticado(req, res);
-
-    if (!req.autenticado) {
-        return;
-    }
-
     let params = req.params;
 
     params.usuario_id = req.usuario;
@@ -393,13 +368,7 @@ const rejeitarFrete = async function (req, res) {
 
 
 const aceitarFrete = async function (req, res) {
-
-    funcoes.autenticado(req, res);
-
-    if (!req.autenticado) {
-        return;
-    }
-
+    
     let params = req.params;
 
     params.usuario_id = req.usuario;
@@ -432,7 +401,7 @@ const aceitarFrete = async function (req, res) {
         let result_comprador = await sql.execSQL(`SELECT u.*, e.*  FROM venda v 
                                                 INNER JOIN usuario u on u.id = v.usuario_id
                                                 INNER JOIN endereco e on e.id = v.endereco_id
-                                                WHERE v.id = ?;`, [params.pedido_id]);
+                                                WHERE v.id = ?`, [params.pedido_id]);
         
         if (result_comprador.length == 0) {
             res.status(404).json({ erro: true, msg: "Comprador do pedido não encontrado!" });
@@ -441,16 +410,26 @@ const aceitarFrete = async function (req, res) {
 
         objetoComprador = result_comprador[0];
 
-        console.log('comprador', result_comprador);
+        let result_endereco = await sql.execSQL(`SELECT e.*, retornaNomeEstado(e.uf) as estado
+                                                FROM venda v 
+                                                INNER JOIN endereco e on e.id = v.endereco_id
+                                                where v.id = ?`, [params.pedido_id]);
+        
+        if (result_endereco.length == 0) {
+            res.status(404).json({ erro: true, msg: "Endereço do comprador não encontrado!" });
+            return;
+        }
+
+        let enderecoObj = result_endereco[0];
 
         let comprador = {
-            "first_name": cobjetoComprador.nome,
-            "last_name": cobjetoComprador.sobrenome,
+            "first_name": objetoComprador.nome,
+            "last_name": objetoComprador.sobrenome,
             "phone": {},
             "address": {
-                "zipcode": cobjetoComprador.cep,
-                "street_name": cobjetoComprador.endereco,
-                "street_number": cobjetoComprador.numero,
+                "zipcode": objetoComprador.cep,
+                "street_name": objetoComprador.endereco,
+                "street_number": objetoComprador.numero,
             }
         };
 
@@ -470,23 +449,27 @@ const aceitarFrete = async function (req, res) {
             itensPedido.push(prodObjeto);
         }); 
 
+        let endereco = {
+            "zip_code": enderecoObj.cep,
+            "state_name": enderecoObj.estado,
+            "city_name": enderecoObj.cidade,
+            "street_name": enderecoObj.endereco,
+            "street_number": enderecoObj.numero
+        };
+
+        // let referencia = new Buffer(`${params.pedido_id}-${params.usuario_id}`).toString("hex");
+
         let dados_pedido = {
             "additional_info": {
                 "items": itensPedido,
                 "payer": comprador,
                 "shipments": {
-                    "receiver_address": {
-                        "zip_code": "12312-123",
-                        "state_name": "Rio de Janeiro",
-                        "city_name": "Buzios",
-                        "street_name": "Av das Nacoes Unidas",
-                        "street_number": 3003
-                    }
+                    "receiver_address": endereco
                 },
                 "barcode": {}
             },
-            "description": "Payment for product",
-            "external_reference": "MP0001",
+            "description": `Pagamento do Pedido #${params.pedido_id} - FoodSupply`,
+            "external_reference": '',
             "installments": 1,
             "metadata": {},
             "payer": {
@@ -495,9 +478,11 @@ const aceitarFrete = async function (req, res) {
                 "identification": {}
             },
             "payment_method_id": "visa",
-            "transaction_amount": 58.8
+            "transaction_amount": _pedido.valor_total
         };
 
+        console.log(dados_pedido);
+        return;
 
     } catch (error) {
         console.log(error);

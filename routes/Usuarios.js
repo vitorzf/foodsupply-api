@@ -1,5 +1,6 @@
 const express = require("express");
-const controller = require("../controllers/usuarioController");
+const controller = require("../controllers/usuario.controller");
+const guard = require("../modules/guard");
 
 const router = express.Router();
 
@@ -7,16 +8,16 @@ router.post("/usuarios/login", controller.login);
 
 router.post("/usuarios/registro", controller.registro);
 
-router.post("/usuarios/cadastrar_endereco", controller.cadastrarEndereco);
+router.post("/usuarios/cadastrar_endereco", guard.auth, controller.cadastrarEndereco);
 
 router.get("/usuarios/dados/:usuario_id", controller.dadosUsuario);
 
-router.get("/usuarios/listar_enderecos", controller.listarEnderecosUsuario);
+router.get("/usuarios/listar_enderecos", guard.auth, controller.listarEnderecosUsuario);
 
-router.put("/usuarios/alterar_senha", controller.alterarSenhaUsuario);
+router.put("/usuarios/alterar_senha", guard.auth, controller.alterarSenhaUsuario);
 
-router.put("/usuarios/endereco/:endereco_id", controller.alterarEndereco);
+router.put("/usuarios/endereco/:endereco_id", guard.auth, controller.alterarEndereco);
 
-router.put("/usuarios/endereco_principal", controller.alterarEnderecoPrincipal);
+router.put("/usuarios/endereco_principal", guard.auth, controller.alterarEnderecoPrincipal);
 
 module.exports = router;

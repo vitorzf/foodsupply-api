@@ -2,7 +2,6 @@ const express = require("express");
 const md5 = require("md5");
 const sql = require("../modules/mysql");
 const jwt = require("jsonwebtoken");
-const funcoes = require("../funcoes");
 
 async function listaProduto(produto_id, usuario_id){
     try {
@@ -45,12 +44,6 @@ async function listaProduto(produto_id, usuario_id){
 }
 
 const cadastrarProduto = async function(req, res){
-    
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
 
     let usuario_id = req.usuario;
 
@@ -90,12 +83,6 @@ const cadastrarProduto = async function(req, res){
 }
 
 const atualizarProduto = async function(req, res){
-
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
 
     let produto_id = req.params.produto_id;
 
@@ -142,12 +129,6 @@ const atualizarProduto = async function(req, res){
 }
 
 const atualizarDadosProduto = async function(req, res){
-
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
 
     let produto_id = req.params.produto_id;
 

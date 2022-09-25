@@ -1,14 +1,15 @@
 const express = require("express");
-const controller = require("../controllers/vendaController");
+const controller = require("../controllers/venda.controller");
+const guard = require("../modules/guard");
 
 const router = express.Router();
 
-router.get("/vendas", controller.listaVendas);
+router.get("/vendas", guard.auth, controller.listaVendas);
 
-router.get("/vendas/:status_pedido", controller.listaVendas);
+router.get("/vendas/:status_pedido", guard.auth, controller.listaVendas);
 
-router.get("/venda/:venda_id", controller.dadosVenda);
+router.get("/venda/:venda_id", guard.auth, controller.dadosVenda);
 
-router.put("/venda/:venda_id/confirmar", controller.confirmarVenda);
+router.put("/venda/:venda_id/confirmar", guard.auth, controller.confirmarVenda);
 
 module.exports = router;

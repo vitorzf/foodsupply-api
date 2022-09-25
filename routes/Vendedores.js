@@ -1,9 +1,10 @@
 const express = require("express");
-const controller = require("../controllers/vendedorController");
+const guard = require("../modules/guard");
+const controller = require("../controllers/vendedor.controller");
 
 const router = express.Router();
 
-router.put("/vendedores/definir_nome", controller.definirNomeVendedor);
+router.put("/vendedores/definir_nome", guard.auth, controller.definirNomeVendedor);
 
 router.get("/vendedores", controller.buscaTodosVendedores);
 

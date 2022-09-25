@@ -1,26 +1,25 @@
 const express = require("express");
-const controller = require("../controllers/produtoController");
+const controller = require("../controllers/produto.controller");
+const guard = require("../modules/guard");
 
 const router = express.Router();
 
-router.post("/produtos", controller.cadastrarProduto);
+router.post("/produtos", guard.auth, controller.cadastrarProduto);
 
-router.put("/produtos/:produto_id", controller.atualizarProduto);
+router.put("/produtos/:produto_id", guard.auth, controller.atualizarProduto);
 
-router.put("/produtos/:produto_id/estoque", controller.atualizarDadosProduto);
+router.put("/produtos/:produto_id/estoque", guard.auth, controller.atualizarDadosProduto);
 
-router.put("/produtos/:produto_id/preco", controller.atualizarDadosProduto);
+router.put("/produtos/:produto_id/preco", guard.auth, controller.atualizarDadosProduto);
 
 router.get("/produtos/unidades_medida", controller.listaUnidadesMedida);
 
-router.get("/produtos/categorias", controller.listaCategorias);
+router.get("/produtos/categorias", guard.auth, controller.listaCategorias);
 
 router.get("/produtos", controller.listaTodosProdutos);
 
 router.get("/produtos/:produto_id", controller.listaDadosProdutos);
 
-router.get("/produtos/vendedor/:vendedor_id", controller.listaProdutosVendedor);
-
-// router.get("/produtos/vendedor/:vendedor_id", controller.listaProdutosVendedor);
+router.get("/produtos/vendedor/:vendedor_id", guard.auth, controller.listaProdutosVendedor);
 
 module.exports = router;

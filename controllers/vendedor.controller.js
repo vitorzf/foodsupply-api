@@ -1,14 +1,7 @@
 const express = require("express");
 const sql = require("../modules/mysql");
-const funcoes = require("../funcoes");
 
 const definirNomeVendedor = async function(req, res){
-
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
 
     let usuario_id = req.usuario;
 

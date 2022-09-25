@@ -2,7 +2,6 @@ const express = require("express");
 const md5 = require("md5");
 const sql = require("../modules/mysql");
 const jwt = require("jsonwebtoken");
-const funcoes = require("../funcoes");
 
 const login = async function(req, res){
 
@@ -100,12 +99,6 @@ const dadosUsuario = async function(req, res){
 
 const alterarSenhaUsuario = async function(req, res){
 
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
-
     let params = {senha: md5(req.body.senha)};
 
     let where = {id: req.usuario};
@@ -129,12 +122,6 @@ const alterarSenhaUsuario = async function(req, res){
 }
 
 const cadastrarEndereco = async function(req, res){
-
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
 
     let dados = req.body;
     
@@ -189,12 +176,6 @@ const cadastrarEndereco = async function(req, res){
 }
 
 const alterarEndereco = async function(req, res){
-
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
 
     let dados = req.body;
     
@@ -257,12 +238,6 @@ const alterarEndereco = async function(req, res){
 
 const listarEnderecosUsuario = async function(req, res){
 
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
-
     try {
 
         let enderecos = await sql.execSQL(`SELECT id,
@@ -286,12 +261,6 @@ const listarEnderecosUsuario = async function(req, res){
 }
 
 const alterarEnderecoPrincipal = async function(req, res){
-
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
 
     try {
 

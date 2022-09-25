@@ -1,6 +1,5 @@
 const express = require("express");
 const sql = require("../modules/mysql");
-const funcoes = require("../funcoes");
 const uuid = require("uuid");
 
 async function verificar_produtos_venda(produtos){
@@ -39,12 +38,6 @@ async function verificar_produtos_venda(produtos){
 }
 
 const listaVendas = async function(req, res){
-
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
 
     let params = req.params;
 
@@ -85,12 +78,6 @@ const listaVendas = async function(req, res){
 }
 
 const dadosVenda = async function(req, res){
-
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
 
     let params = req.params;
 
@@ -157,12 +144,6 @@ const dadosVenda = async function(req, res){
 }
 
 const confirmarVenda = async function(req, res){
-
-    funcoes.autenticado(req, res);
-
-    if(!req.autenticado){
-        return;
-    }
 
     let params = req.params;
 
