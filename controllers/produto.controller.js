@@ -1,360 +1,150 @@
 const express = require("express");
-const md5 = require("md5");
 const sql = require("../modules/mysql");
-const jwt = require("jsonwebtoken");
-
-async function listaProduto(produto_id, usuario_id){
-    try {
-
-        let txtSql = `SELECT p.id,
-                            p.sku,
-                            p.titulo,
-                            p.descricao,
-                            p.preco,
-                            p.estoque,
-                            p.fotos,
-                            p.data_hora_cadastro,
-                            c.id as categoria_id,
-                            c.nome as categoria_nome,
-                            um.id as unidade_medida_id,
-                            um.sigla as unidade_medida_sigla,
-                            um.nome as unidade_medida_nome,
-                            u.id as vendedor_id,
-                            COALESCE(u.nome_vendedor, u.usuario) as nome_vendedor
-                        FROM produto p
-                        INNER JOIN usuario u ON u.id = p.usuario_id
-                        INNER JOIN categorias c ON c.id = p.categoria_id
-                        INNER JOIN unidade_medida um ON um.id = p.medida_id
-                        WHERE p.ativo = 1
-                        and p.id = ?
-                        and p.usuario_id = ?`;
-
-        let busca_produtos = await sql.execSQL(txtSql, [produto_id, usuario_id]);
-
-        if(busca_produtos.length == 0){
-            return null
-        }
-
-        return busca_produtos[0];
-        
-    } catch (error) {
-        return error;
-    }
-
-}
-
-const cadastrarProduto = async function(req, res){
-
-    let usuario_id = req.usuario;
-
-    let produto = req.body;
-    
-    produto.fotos = JSON.stringify(produto.fotos);
-    produto.usuario_id = usuario_id;
-
-    try {
-
-        let busca_produto_existente = await sql.execSQL(
-            "SELECT id FROM produto WHERE sku = ? AND usuario_id = ?",
-            [produto.sku, usuario_id]
-        );
-        
-        if(busca_produto_existente.length != 0){
-
-            return res.status(400).json({erro:true, msg:`SKU ${produto.sku} já cadastrado para o usuário`});
-
-        }
-
-        let produto_id = await sql.insert("produto", produto, true);
-
-        if(produto_id.length != 0){
-            res.json({erro: false, msg: "Produto Criado com Sucesso!", produto_id: produto_id})
-        }else{
-            res.status(500).json({erro: true, msg:"Erro ao cadastrar Produto!"});
-        }
-
-    } catch (error) {
-        
-        // res.status(500).json({erro: true, msg:"Erro interno do servidor"});
-        res.status(500).json({erro: true, msg:error});
-        
-    }
-      
-}
-
-const atualizarProduto = async function(req, res){
-
-    let produto_id = req.params.produto_id;
-
-    let usuario_id = req.usuario;
-
-    let produto = req.body;
-
-    produto.fotos = JSON.stringify(produto.fotos);
-    produto.usuario_id = usuario_id;
-
-    try {
-
-        let busca_produto_existente = await sql.execSQL(
-            "SELECT id FROM produto WHERE sku = ? AND usuario_id = ?",
-            [produto.sku, usuario_id]
-        );
-        
-        if(busca_produto_existente.length == 0){
-    
-            return res.status(404).json({erro:true, msg:`Produto não encontrado`});
-    
-        }
-
-        let condicao = {
-            id: produto_id,
-            usuario_id: usuario_id
-        };
-
-        let atualizar = await sql.update("produto", produto, condicao);
-
-        if(atualizar){
-
-            res.json({erro: false, msg: "Produto Atualizado com Sucesso!", produto_id: produto_id})
-
-        }else{
-
-            res.status(500).json({erro: true, msg:"Erro ao atualizar Produto!"});
-
-        }
-    } catch (error) {
-        res.status(500).json({erro: true, msg:error});
-    }
-
-}
-
-const atualizarDadosProduto = async function(req, res){
-
-    let produto_id = req.params.produto_id;
-
-    let usuario_id = req.usuario;
-
-    let produto = req.body;
-
-    produto.usuario_id = usuario_id;
-
-    try {
-
-        let busca_produto_existente = await sql.execSQL(
-            "SELECT id FROM produto WHERE id = ? AND usuario_id = ?",
-            [produto_id, usuario_id]
-        );
-        
-        if(busca_produto_existente.length == 0){
-    
-            return res.status(404).json({erro:true, msg:`Produto não encontrado`});
-    
-        }
-
-        let condicao = {
-            id: produto_id,
-            usuario_id: usuario_id
-        };
-
-        let atualizar = await sql.update("produto", produto, condicao);
-
-        if(atualizar){
-
-            dados_produto = await listaProduto(produto_id, usuario_id);
-
-            if(typeof(dados_produto) != "object"){
-                res.status(500).json({erro: true, msg:"Erro ao atualizar Produto!"});
-            }
-
-            res.json({erro: false, msg: "Produto Atualizado com Sucesso!", produto: dados_produto})
-
-        }else{
-
-            res.status(500).json({erro: true, msg:"Erro ao atualizar Produto!"});
-
-        }
-    } catch (error) {
-        res.status(500).json({erro: true, msg:error});
-    }
-
-}
-
-const listaUnidadesMedida = async function(req, res){
-
-    try {
-        
-        let busca_unidades = await sql.execSQL("SELECT * FROM unidade_medida");
-
-        res.json({erro: false, retorno: busca_unidades});
-
-    } catch (error) {
-        res.status(500).json({erro: true, msg:error});
-    }
-
-}
-
-const listaCategorias = async function(req, res){
-
-    try {
-
-        let busca_categorias = await sql.execSQL("SELECT * FROM categorias ORDER BY nome ASC");
-
-        res.json({erro:false, retorno:busca_categorias});
-        
-    } catch (error) {
-        res.status(500).json({erro: true, msg:error});
-    }
-
-}
-
-const listaTodosProdutos = async function(req, res){
-
-    try {
-
-        let filtros = "";
-        let get = req.query;
-
-        if(get.titulo !== undefined){
-            filtros += ` AND p.titulo like '%${get.titulo}%' `;
-        }
-
-        let txtSql = `SELECT p.id,
-                            p.sku,
-                            p.titulo,
-                            p.descricao,
-                            p.preco,
-                            p.estoque,
-                            p.fotos,
-                            p.data_hora_cadastro,
-                            c.id as categoria_id,
-                            c.nome as categoria_nome,
-                            um.id as unidade_medida_id,
-                            um.sigla as unidade_medida_sigla,
-                            um.nome as unidade_medida_nome,
-                            u.id as vendedor_id,
-                            COALESCE(u.nome_vendedor, u.usuario) as nome_vendedor
-                        FROM produto p
-                        INNER JOIN usuario u ON u.id = p.usuario_id
-                        INNER JOIN categorias c ON c.id = p.categoria_id
-                        INNER JOIN unidade_medida um ON um.id = p.medida_id
-                        WHERE p.ativo = 1
-                        ${filtros}`;
-
-        let busca_produtos = await sql.execSQL(txtSql);
-
-        let retorno = [];
-
-        for(const produto of busca_produtos){
-            
-            let fotos = JSON.parse(produto.fotos);
-
-            produto.fotos = fotos;
-
-            retorno.push(produto);
-
-        }
-
-        res.json({erro:false, retorno:retorno});
-        
-    } catch (error) {
-        res.status(500).json({erro: true, msg:error});
-    }
-
-}
-
-const listaDadosProdutos = async function(req, res){
-
-    try {
-
-        let produto_id = req.params.produto_id;
-
-        let txtSql = `SELECT p.id,
-                            p.sku,
-                            p.titulo,
-                            p.descricao,
-                            p.preco,
-                            p.estoque,
-                            p.fotos,
-                            p.data_hora_cadastro,
-                            c.id as categoria_id,
-                            c.nome as categoria_nome,
-                            um.id as unidade_medida_id,
-                            um.sigla as unidade_medida_sigla,
-                            um.nome as unidade_medida_nome,
-                            u.id as vendedor_id,
-                            COALESCE(u.nome_vendedor, u.usuario) as nome_vendedor
-                        FROM produto p
-                        INNER JOIN usuario u ON u.id = p.usuario_id
-                        INNER JOIN categorias c ON c.id = p.categoria_id
-                        INNER JOIN unidade_medida um ON um.id = p.medida_id
-                        WHERE p.ativo = 1
-                        and p.id = '${produto_id}'`;
-
-        let busca_produtos = await sql.execSQL(txtSql);
-
-        let retorno = [];
-
-        for(const produto of busca_produtos){
-            
-            let fotos = JSON.parse(produto.fotos);
-
-            produto.fotos = fotos;
-
-            retorno.push(produto);
-
-        }
-
-        res.json({erro:false, retorno:retorno[0]});
-        
-    } catch (error) {
-        res.status(500).json({erro: true, msg:error});
-    }
-
-}
-
-const listaProdutosVendedor = async function(req, res){
-
-    let dados = req.params;
-
-    try {
-
-        let txtSql = `SELECT p.id,
-                            p.sku,
-                            p.titulo,
-                            p.descricao,
-                            p.preco,
-                            p.estoque,
-                            p.fotos,
-                            p.data_hora_cadastro,
-                            c.id as categoria_id,
-                            c.nome as categoria_nome,
-                            um.id as unidade_medida_id,
-                            um.sigla as unidade_medida_sigla,
-                            um.nome as unidade_medida_nome
-                        FROM produto p
-                        INNER JOIN usuario u ON u.id = p.usuario_id
-                        INNER JOIN categorias c ON c.id = p.categoria_id
-                        INNER JOIN unidade_medida um ON um.id = p.medida_id
-                        WHERE p.ativo = 1
-                        and p.usuario_id = ?`;
-        
-        let produtos = await sql.execSQL(txtSql, [dados.vendedor_id]);
-
-        res.json({erro: false, retorno: produtos});
-
-    } catch (error) {
-        res.status(500).json({erro: true, msg:error});
-    }
-
-}
+const model = require("../models/produto.model");
 
 module.exports = {
-    cadastrarProduto,
-    atualizarProduto,
-    atualizarDadosProduto,
-    listaUnidadesMedida,
-    listaCategorias,
-    listaTodosProdutos,
-    listaProdutosVendedor,
-    listaDadosProdutos
+    cadastrarProduto : async (req, res) => {
+        let usuario_id = req.usuario;
+
+        let produto = req.body;
+        
+        produto.fotos = JSON.stringify(produto.fotos);
+        produto.usuario_id = usuario_id;
+    
+        try {
+    
+            let cadastrar_produto = await model.cadastrar_produto(usuario_id, produto);
+    
+            if(cadastrar_produto.http == 200){
+                res.status(200).json({erro: false, msg: "Produto cadastrado com Sucesso!", produto_id: cadastrar_produto.produto_id});
+                return;
+            }
+    
+            res.status(cadastrar_produto.http).json({erro: true, msg: cadastrar_produto.msg});
+            
+        } catch (error) {
+            
+            // res.status(500).json({erro: true, msg:"Erro interno do servidor"});
+            res.status(500).json({erro: true, msg:error});
+            
+        }
+    },
+    atualizarProduto : async (req, res) => {
+        let produto_id = req.params.produto_id;
+
+        let usuario_id = req.usuario;
+    
+        let produto = req.body;
+    
+        produto.fotos = JSON.stringify(produto.fotos);
+        produto.usuario_id = usuario_id;
+    
+        try {
+    
+            let atualizar_produto = await model.atualizar_produto(produto_id, usuario_id, produto);
+    
+            if(atualizar_produto.http == 200){
+                res.status(200).json({erro: false, msg: atualizar_produto.msg, produto_id: atualizar_produto.produto_id});
+                return;
+            }
+    
+            res.status(atualizar_produto.http).json({erro: true, msg: atualizar_produto.msg});
+    
+        } catch (error) {
+            res.status(500).json({erro: true, msg:error});
+        }
+    
+    },
+    atualizarDadosProduto : async (req, res) => {
+        let produto_id = req.params.produto_id;
+
+        let usuario_id = req.usuario;
+    
+        let produto = req.body;
+    
+        produto.usuario_id = usuario_id;
+    
+        try {
+    
+            let atualizar_dados_produto = await model.atualizar_dados_produto(produto_id, usuario_id, produto);
+    
+            if(atualizar_dados_produto.http == 200){
+                res.status(200).json({erro: false, msg: atualizar_dados_produto.msg, produto: atualizar_dados_produto.produto});
+                return;
+            }
+    
+            res.status(atualizar_dados_produto.http).json({erro: true, msg: atualizar_dados_produto.msg});
+            
+        } catch (error) {
+            res.status(500).json({erro: true, msg:error});
+        }
+    
+    },
+    listaUnidadesMedida : async (req, res) => {
+        try {
+        
+            let busca_unidades = await model.lista_unidades_medida();
+    
+            res.json({erro: false, retorno: busca_unidades});
+    
+        } catch (error) {
+            res.status(500).json({erro: true, msg:error});
+        }
+    },
+    listaCategorias : async (req, res) => {
+        try {
+
+            let busca_categorias = await model.lista_categorias()
+    
+            res.json({erro:false, retorno:busca_categorias});
+            
+        } catch (error) {
+            res.status(500).json({erro: true, msg:error});
+        }
+    },
+    listaTodosProdutos : async (req, res) => {
+        try {
+
+            let get = req.query;
+            
+            let filtros = "";
+            
+            if(get.titulo !== undefined){
+                filtros += ` AND p.titulo like '%${get.titulo}%' `;
+            }
+    
+            let lista_todos_produtos = await model.lista_todos_produtos(filtros);
+    
+            res.json({erro:false, retorno:lista_todos_produtos});
+            
+        } catch (error) {
+            res.status(500).json({erro: true, msg:error});
+        }
+    },
+    listaProdutosVendedor : async (req, res) => {
+        let dados = req.params;
+
+        try {
+        
+            let lista_produtos_vendedor = await model.lista_produtos_vendedor(dados);
+    
+            res.json({erro: false, retorno: lista_produtos_vendedor});
+    
+        } catch (error) {
+            res.status(500).json({erro: true, msg:error});
+        }
+    },
+    listaDadosProdutos : async (req, res) => {
+        try {
+
+            let produto_id = req.params.produto_id;
+    
+            let lista_dados_produto = await model.lista_dados_produto(produto_id);
+    
+            res.json({erro:false, retorno:lista_dados_produto[0]});
+            
+        } catch (error) {
+            res.status(500).json({erro: true, msg:error});
+        }
+    }
 }

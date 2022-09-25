@@ -2,41 +2,6 @@ const express = require("express");
 const sql = require("../modules/mysql");
 const uuid = require("uuid");
 
-async function verificar_produtos_venda(produtos){
-
-    let produtos_retorno = [];
-
-    try {
-
-        for(const produto_venda of produtos){
-            let txtSql = `select
-                                p.*,
-                                CASE WHEN p.estoque >= ${produto_venda.quantidade} THEN true
-                                ELSE false END as tem_estoque,
-                                '${produto_venda.quantidade}' as quantidade_venda,
-                                true as existe,
-                                ${produto_venda.quantidade} * p.preco as valor_total
-                            from produto p
-                            where p.id = ?
-                            and p.usuario_id = ?`;
-
-            let dados_produto = await sql.execSQL(txtSql, [produto_venda.produto_id, produto_venda.vendedor]);
-
-            if(dados_produto.length == 0){
-                produtos_retorno.push({id:produto_venda.id, existe: false, tem_estoque: true, total_venda: 0});
-            }else{
-                produtos_retorno.push(dados_produto[0]);
-            }
-        }
-
-        return produtos_retorno;
-        
-    } catch (error) {
-        return {msg: "Erro ao salvar pedido"};
-    }
-
-}
-
 const listaVendas = async function(req, res){
 
     let params = req.params;
