@@ -1,5 +1,4 @@
 const express = require("express");
-const sql = require("../modules/mysql");
 const model = require("../models/produto.model");
 
 module.exports = {

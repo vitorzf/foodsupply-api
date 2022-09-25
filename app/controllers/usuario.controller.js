@@ -1,6 +1,5 @@
 const express = require("express");
 const md5 = require("md5");
-const sql = require("../modules/mysql");
 const jwt = require("jsonwebtoken");
 const model = require("../models/usuario.model");
 

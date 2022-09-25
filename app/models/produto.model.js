@@ -1,4 +1,4 @@
-const sql = require("../modules/mysql");
+const sql = require("../../modules/mysql");
 
 async function listaProduto(produto_id, usuario_id){
     try {

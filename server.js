@@ -1,7 +1,6 @@
 const express = require("express");
-// const bodyParser = require("body-parser");
-require("dotenv-safe").config()
-// const jwt = require("jsonwebtoken")
+require("dotenv-safe").config();
+
 const app = express();
 
 const porta = 3001;

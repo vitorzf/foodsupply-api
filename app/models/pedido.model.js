@@ -1,4 +1,4 @@
-const sql = require("../modules/mysql");
+const sql = require("../../modules/mysql");
 
 async function retorna_dados_produto(){
     try {

@@ -1,4 +1,4 @@
-const sql = require("../modules/mysql");
+const sql = require("../../modules/mysql");
 const md5 = require("md5");
 
 module.exports = {
