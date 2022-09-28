@@ -1,74 +1,51 @@
 "use strict";
 const crypt = require("./crypt.service");
-const axios = require('axios').default; 
+const axios = require('axios').default;
 
-module.exports = class MercadoPago{
+module.exports = class MercadoPago {
 
-    credenciaisMP = null;
+    access_token = null;
     pedido_id = null;
     pedido = null;
     produtos = null;
     comprador = null;
-    endereco = null;
-    valorTotal = null;
+    valorFrete = 0;
+    sandbox = true;
 
-    setCredenciais(credenciais){
-        this.credenciaisMP = credenciais;
+    setCredenciais(credenciais) {
+        this.access_token = credenciais;
     }
 
-    getCredenciais(){
+    getCredenciais() {
 
-        //Fazemos a requisição para obter o token do ml
-
-        let headers = {
-            "Content-Type": "application/json",
-            "Authorization": "TEST-7426611135195185-101317-afdedf8260de7721ca04ab511d029a44-375334628"
-        };
-
-        // PUBLIC KEY: TEST-4a4320fe-1e76-4d7e-a91e-ae86a536a163
-        // ACCESS TOKEN: TEST-7426611135195185-101317-afdedf8260de7721ca04ab511d029a44-375334628
-        // CLIENT ID: 7426611135195185
-
-
-        axios.post(
-            "https://api.mercadopago.com/oauth/token", JSON.stringify({
-                client_id: "7426611135195185",
-                client_secret: "TEST-4a4320fe-1e76-4d7e-a91e-ae86a536a163",
-                grant_type: "authorization_code"
-            }), 
-            headers
-            ).then((response)=> {
-                console.log(response);
-            }).catch((error) => {
-                console.log(error);
-            })
+       return this.access_token;
 
     }
 
-    setPedidoID(pedidoID){
+    setPedidoID(pedidoID) {
         this.pedido_id = pedidoID;
     }
 
-    getPedidoID(){
+    getPedidoID() {
         return this.pedido_id;
     }
 
-    setPedido(pedido){
+    setPedido(pedido) {
         this.pedido = pedido;
     }
 
-    getPedido(){
+    getPedido() {
         return this.pedido;
     }
 
-    setProdutos(produtos){
+    setProdutos(produtos) {
         this.produtos = produtos;
     }
 
-    getProdutos(){
+    getProdutos() {
 
         let itensPedido = [];
-        
+
         this.produtos.forEach(element => {
             let prodFoto = JSON.parse(element.fotos);
 
@@ -78,19 +55,38 @@ module.exports = class MercadoPago{
                 "description": element.descricao,
                 "picture_url": prodFoto[0].url,
                 "quantity": element.quantidade,
-                "unit_price": element.valor_unitario
+                "unit_price": element.valor_unitario,
+                "currency_id": "BRL"
             }
+
             itensPedido.push(prodObjeto);
         });
 
+        let valor_frete = this.getValorFrete();
+
+        if(valor_frete != 0){
+
+            let objFrete = {
+                "id": "FreteEnvio",
+                "title": "Valor total de Frete",
+                "description": "Este é um adicional do valor dos itens cobrado para envio da mercadoria",
+                "picture_url": "",
+                "quantity": 1,
+                "unit_price": valor_frete,
+                "currency_id": "BRL"
+            }
+
+            itensPedido.push(objFrete);
+        }
+
         return itensPedido;
     }
-    
-    setComprador(comprador){
+
+    setComprador(comprador) {
         this.comprador = comprador;
     }
 
-    getComprador(){
+    getComprador() {
 
         return {
             "first_name": this.comprador.nome,
@@ -104,76 +100,81 @@ module.exports = class MercadoPago{
         };
 
     }
-    
-    setEndereco(endereco){
-        this.endereco = endereco;
+
+    setValorFrete(valorFrete) {
+        this.valorFrete = valorFrete;
     }
 
-    getEndereco(){
-
-        return {
-            "zip_code": this.endereco.cep,
-            "state_name": this.endereco.estado,
-            "city_name": this.endereco.cidade,
-            "street_name": this.endereco.endereco,
-            "street_number": this.endereco.numero
-        };
+    getValorFrete() {
+        return this.valorFrete;
     }
 
-    setValorTotal(valorTotal){
-        this.valorTotal = valorTotal;
-    }
-
-    getValorTotal(){
-        return this.valorTotal;
-    }
-
-    getExternalReference(pedido_id){
+    getExternalReference(pedido_id) {
 
         return crypt.encrypt(pedido_id);
 
     }
 
-    checkout(){
+    async checkout() {
 
-        let credenciais = this.getCredenciais();    
         let pedido_id = this.getPedidoID();
         let produtos = this.getProdutos();
         let comprador = this.getComprador();
-        let endereco = this.getEndereco();
-        let valor_total = this.getValorTotal();
         let hash_pedido = this.getExternalReference(pedido_id);
 
         let dados_pedido = {
-            "additional_info": {
-                "items": produtos,
-                "payer": comprador,
-                "shipments": {
-                    "receiver_address": endereco
-                },
-                "barcode": {}
+            "items": produtos,
+            "payer": comprador,
+            "back_urls": {
+                "pending": "https://foodsupply2.herokuapp.com/mercadopago/pending",
+                "success": "https://foodsupply2.herokuapp.com/mercadopago/success",
+                "failure": "https://foodsupply2.herokuapp.com/mercadopago/failure"
             },
-            "description": `Pagamento do Pedido #${pedido_id} - FoodSupply`,
+            "auto_return": "approved",
+            "payment_methods": {
+                "excluded_payment_types": [
+                    {
+                        "id": "ticket"
+                    }
+                ],
+                "installments": 1,
+                "default_installments": 1
+            },
+            "notification_url": "https://foodsupply2.herokuapp.com/mercadopago",
             "external_reference": hash_pedido,
-            "installments": 1,
-            "metadata": {},
-            "payer": {
-                "entity_type": "individual",
-                "type": "customer",
-                "identification": {}
-            },
-            "notification_url" : "http://conteumahistoria.com/mercadopago/teste",
-            "payment_method_id": "visa",
-            "transaction_amount": valor_total
+            "expires": false,
+            "site_id": "MLB",
+            "expiration_date_from": null,
+            "expiration_date_to": null
         };
 
-        let headers = {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer "+ this.getCredenciais()
+        let config = {
+            headers:{
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + this.getCredenciais()
+            }
         };
 
-        axios.post("https://api.mercadopago.com/v1/payments", )
-    
+        axios.post(
+            "https://api.mercadopago.com/checkout/preferences",
+            JSON.stringify(dados_pedido), 
+            config
+        ).then((response) => {
+            
+            let retorno = response.data;
+
+            let url = (this.sandbox ? response.sandbox_init_point : response.init_point);
+
+            return {erro: false, url:url, referencia_externa: response.external_reference, dados: JSON.parse(retorno)};
+
+        }).catch((err) => {
+
+            console.log(err);
+
+            return {erro: true};
+
+        })
+
     }
 
 }

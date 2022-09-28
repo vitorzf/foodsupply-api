@@ -193,16 +193,17 @@ module.exports = {
     
             objetoComprador = result_comprador[0];
 
-            mp.setCredenciais({usuario: "TETE18516", senha: "UgBIBcjwMK"});
+            mp.setCredenciais("TEST-2939643210865409-092801-94107258f93eee072c63c0808bf3a281-375334628");
+            // mp.setCredenciais("APP_USR-2939643210865409-092801-4f44a54d09df67f3121ecec5dd21b7dd-375334628");
             mp.setComprador(objetoComprador);
-            mp.setEndereco(objetoComprador);
             mp.setPedido(_pedido);
             mp.setProdutos(result_produtos);
-            mp.setValorTotal(_pedido.valor_total);
+            mp.setValorFrete(_pedido.valor_frete);
 
-            let url_pagto = mp.checkout();
+            let pagto = await mp.checkout();
 
-            console.log(url_pagto);
+            console.log("PAGTO", pagto);
+            return;
     
             // let comprador = {
             //     "first_name": objetoComprador.nome,
