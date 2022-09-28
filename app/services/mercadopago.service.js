@@ -167,7 +167,7 @@ module.exports = class MercadoPago {
 
             let url = (this.sandbox ? response.sandbox_init_point : response.init_point);
 
-            return {erro: false, url:url, referencia_externa: response.external_reference, dados: JSON.parse(retorno)};
+            return {erro: false, url:url, referencia_externa: response.external_reference};
 
         }).catch((err) => {
 
