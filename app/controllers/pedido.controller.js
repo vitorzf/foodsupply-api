@@ -205,48 +205,6 @@ module.exports = {
             console.log("PAGTO", pagto);
             return;
     
-            // let comprador = {
-            //     "first_name": objetoComprador.nome,
-            //     "last_name": objetoComprador.sobrenome,
-            //     "phone": {},
-            //     "address": {
-            //         "zipcode": objetoComprador.cep,
-            //         "street_name": objetoComprador.endereco,
-            //         "street_number": objetoComprador.numero,
-            //     }
-            // };
-    
-            // let itensPedido = [];
-            
-            // result_produtos.forEach(element => {
-            //     let prodFoto = JSON.parse(element.fotos);
-    
-            //     let prodObjeto = {
-            //         "id": element.sku,
-            //         "title": element.titulo,
-            //         "description": element.descricao,
-            //         "picture_url": prodFoto[0].url,
-            //         "quantity": element.quantidade,
-            //         "unit_price": element.valor_unitario
-            //     }
-            //     itensPedido.push(prodObjeto);
-            // }); 
-    
-            // let endereco = {
-            //     "zip_code": enderecoObj.cep,
-            //     "state_name": enderecoObj.estado,
-            //     "city_name": enderecoObj.cidade,
-            //     "street_name": enderecoObj.endereco,
-            //     "street_number": enderecoObj.numero
-            // };
-    
-            // // let referencia = new Buffer(`${params.pedido_id}-${params.usuario_id}`).toString("hex");
-    
-            
-    
-            // console.log(dados_pedido);
-            return;
-    
         } catch (error) {
             console.log(error);
             res.status(500).json({ erro: true, msg: "Erro interno do servidor!" });

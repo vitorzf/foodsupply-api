@@ -155,7 +155,7 @@ module.exports = class MercadoPago {
             }
         };
 
-        axios.post(
+        await axios.post(
             "https://api.mercadopago.com/checkout/preferences",
             JSON.stringify(dados_pedido), 
             config
