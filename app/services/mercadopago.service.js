@@ -157,25 +157,11 @@ module.exports = class MercadoPago {
 
         console.log("Fazendo requisição MP");
 
-        await axios.post(
+        return await axios.post(
             "https://api.mercadopago.com/checkout/preferences",
             JSON.stringify(dados_pedido), 
             config
-        ).then((response) => {
-            
-            let retorno = response.data;
-
-            let url = (this.sandbox ? retorno.sandbox_init_point : retorno.init_point);
-
-            return {erro: false, url:url, referencia_externa: retorno.external_reference};
-
-        }).catch((err) => {
-
-            console.log(err);
-
-            return {erro: true};
-
-        })
+        )
 
     }
 

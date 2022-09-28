@@ -200,7 +200,23 @@ module.exports = {
             mp.setProdutos(result_produtos);
             mp.setValorFrete(_pedido.valor_frete);
 
-            let pagto = await mp.checkout();
+            let pagto =  null;
+            await mp.checkout().then((response) => {
+            
+                let retorno = response.data;
+    
+                let url = (this.sandbox ? retorno.sandbox_init_point : retorno.init_point);
+    
+                pagto = {erro: false, url:url, referencia_externa: retorno.external_reference};
+    
+            }).catch((err) => {
+    
+                console.log(err);
+    
+                pagto = {erro: true};
+    
+            });
+
 
             console.log("PAGTO", pagto);
             return;
