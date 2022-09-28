@@ -3,7 +3,8 @@ require("dotenv-safe").config();
 
 const app = express();
 
-const porta = 3001;
+// const porta = 3001;
+const porta = process.env.PORT || 3001; 
 
 let usuario = require("./routes/Usuarios");
 let produto = require("./routes/Produtos");

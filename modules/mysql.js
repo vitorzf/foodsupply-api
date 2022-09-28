@@ -1,10 +1,19 @@
 const mysql = require("mysql");
 
+// LOCALHOST
+// var con = mysql.createConnection({
+//     host: "localhost",
+//     user: "root",
+//     database: "foodsupply",
+//     password: ""
+// });
+
+//PRODUÇÃO
 var con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    database: "foodsupply",
-    password: ""
+    host: "45.132.157.52",
+    user: "u114347885_foodsupply",
+    database: "u114347885_foodsupply",
+    password: "QS$dyto?$4*m"
 });
 
 con.connect(function(err) {
