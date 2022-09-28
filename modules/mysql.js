@@ -170,6 +170,9 @@ const execSQL = async function(sql, params = {}){
             else resolve(result);
     
         });
+    }).catch((error) => {
+        console.log("erro de sql");
+        console.log(error);
     })
 
 }
