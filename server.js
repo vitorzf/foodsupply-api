@@ -25,3 +25,11 @@ app.listen(porta, ()=>{
     console.log(`Servidor iniciado na porta ${porta}`)
 
 });
+
+process.on('uncaughtException', (error, origin) => {
+    if (error?.code === 'ECONNRESET') return;
+    console.error('UNCAUGHT EXCEPTION');
+    console.error(error);
+    console.error(origin);
+    process.exit(1);
+  });
