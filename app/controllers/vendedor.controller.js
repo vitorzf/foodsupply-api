@@ -29,7 +29,7 @@ const buscaTodosVendedores = async function(req, res){
 
     try {
 
-        let lista_todos_vendedores = model.lista_todos_vendedores()
+        let lista_todos_vendedores = await model.lista_todos_vendedores();
 
         res.status(200).json({erro: false, retorno: lista_todos_vendedores});
 

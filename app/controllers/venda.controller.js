@@ -76,7 +76,7 @@ module.exports = {
     
         try {
     
-            let confirmar_venda = model.confirmar_venda(params.usuario_id, params.venda_id);
+            let confirmar_venda = await model.confirmar_venda(params.usuario_id, params.venda_id);
     
             if(confirmar_venda.erro){
                 res.status(confirmar_venda.http).json({erro: true, msg: confirmar_venda.msg});

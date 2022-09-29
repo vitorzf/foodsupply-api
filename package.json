@@ -2,21 +2,24 @@
   "name": "apifoodsupply",
   "version": "1.0.0",
   "description": "Api para o site foodsupply",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start": "nodemon server.js"
   },
   "author": "Vitor",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.27.2",
     "body-parser": "^1.20.0",
     "dotenv-safe": "^8.2.0",
     "ejs": "^3.1.7",
     "express": "^4.18.1",
     "express-session": "^1.17.2",
+    "heroku": "^7.63.4",
     "jsonwebtoken": "^8.5.1",
     "md5": "^2.3.0",
     "mysql": "^2.18.1",
+    "nodemon": "^2.0.20",
     "uuid": "^8.3.2"
   }
 }

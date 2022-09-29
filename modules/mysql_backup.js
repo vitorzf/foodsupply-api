@@ -1,4 +1,25 @@
-var con = require("./mysql_pool");
+const mysql = require("mysql");
+
+// LOCALHOST
+// var con = mysql.createConnection({
+//     host: "localhost",
+//     user: "root",
+//     database: "foodsupply",
+//     password: ""
+// });
+
+//PRODUÇÃO
+var con = mysql.createConnection({
+    host: "45.132.157.52",
+    user: "u114347885_foodsupply",
+    database: "u114347885_foodsupply",
+    password: "QS$dyto?$4*m"
+});
+
+con.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected!");
+});
 
 const insert = async function(tabela, obj, retorna_id = false){
 

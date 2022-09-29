@@ -1,6 +1,7 @@
 const express = require("express");
 const uuid = require("uuid");
 const model = require("../models/pedido.model");
+const MercadoPago = require("../services/mercadopago.service");
 
 module.exports = {
     inserirPedido : async (req, res) => {
@@ -162,12 +163,12 @@ module.exports = {
         params.usuario_id = req.usuario;
     
         try {
-    
-            let _pedido = await sql.execSQL(`SELECT id, valor_frete, valor_total
-                                            FROM venda 
-                                            WHERE id = ? 
-                                            and usuario_id = ? 
-                                            and status = 'aguardando_pagamento'`, [params.pedido_id, params.usuario_id]);
+
+            let mp = new MercadoPago();
+
+            mp.setPedidoID(params.pedido_id);
+
+            let _pedido = await model.info_pedido(params.pedido_id, params.usuario_id);
     
             if (_pedido.length == 0) {
                 res.status(404).json({ erro: true, retorno: [{ msg: "Pedido não encontrado" }] });
@@ -176,20 +177,14 @@ module.exports = {
     
             _pedido = _pedido[0];
     
-            let result_produtos = await sql.execSQL(`SELECT vp.produto_id, p.sku, p.fotos, p.titulo, p.descricao, vp.quantidade, vp.valor_unitario, vp.valor_total 
-                                                    FROM venda_produto vp
-                                                    INNER JOIN produto p on p.id = vp.produto_id 
-                                                    WHERE vp.venda_id = ?`, [params.pedido_id]);
+            let result_produtos = await model.produtos_venda(params.pedido_id, params.usuario_id);
     
             if (result_produtos.length == 0) {
                 res.status(404).json({ erro: true, msg: "Produtos do pedido não encontrados!" });
                 return;
             }
     
-            let result_comprador = await sql.execSQL(`SELECT u.*, e.*  FROM venda v 
-                                                    INNER JOIN usuario u on u.id = v.usuario_id
-                                                    INNER JOIN endereco e on e.id = v.endereco_id
-                                                    WHERE v.id = ?`, [params.pedido_id]);
+            let result_comprador = await model.comprador_venda(params.pedido_id);
             
             if (result_comprador.length == 0) {
                 res.status(404).json({ erro: true, msg: "Comprador do pedido não encontrado!" });
@@ -197,79 +192,33 @@ module.exports = {
             }
     
             objetoComprador = result_comprador[0];
-    
-            let result_endereco = await sql.execSQL(`SELECT e.*, retornaNomeEstado(e.uf) as estado
-                                                    FROM venda v 
-                                                    INNER JOIN endereco e on e.id = v.endereco_id
-                                                    where v.id = ?`, [params.pedido_id]);
+
+            mp.setCredenciais("TEST-2939643210865409-092801-94107258f93eee072c63c0808bf3a281-375334628");
+            // mp.setCredenciais("APP_USR-2939643210865409-092801-4f44a54d09df67f3121ecec5dd21b7dd-375334628");
+            mp.setComprador(objetoComprador);
+            mp.setPedido(_pedido);
+            mp.setProdutos(result_produtos);
+            mp.setValorFrete(_pedido.valor_frete);
+
+            let pagto =  null;
+            await mp.checkout().then((response) => {
             
-            if (result_endereco.length == 0) {
-                res.status(404).json({ erro: true, msg: "Endereço do comprador não encontrado!" });
-                return;
-            }
+                let retorno = response.data;
     
-            let enderecoObj = result_endereco[0];
+                let url = (this.sandbox ? retorno.sandbox_init_point : retorno.init_point);
     
-            let comprador = {
-                "first_name": objetoComprador.nome,
-                "last_name": objetoComprador.sobrenome,
-                "phone": {},
-                "address": {
-                    "zipcode": objetoComprador.cep,
-                    "street_name": objetoComprador.endereco,
-                    "street_number": objetoComprador.numero,
-                }
-            };
+                pagto = {erro: false, url:url, referencia_externa: retorno.external_reference};
     
-            let itensPedido = [];
-            
-            result_produtos.forEach(element => {
-                let prodFoto = JSON.parse(element.fotos);
+            }).catch((err) => {
     
-                let prodObjeto = {
-                    "id": element.sku,
-                    "title": element.titulo,
-                    "description": element.descricao,
-                    "picture_url": prodFoto[0].url,
-                    "quantity": element.quantidade,
-                    "unit_price": element.valor_unitario
-                }
-                itensPedido.push(prodObjeto);
-            }); 
+                console.log(err);
     
-            let endereco = {
-                "zip_code": enderecoObj.cep,
-                "state_name": enderecoObj.estado,
-                "city_name": enderecoObj.cidade,
-                "street_name": enderecoObj.endereco,
-                "street_number": enderecoObj.numero
-            };
+                pagto = {erro: true};
     
-            // let referencia = new Buffer(`${params.pedido_id}-${params.usuario_id}`).toString("hex");
-    
-            let dados_pedido = {
-                "additional_info": {
-                    "items": itensPedido,
-                    "payer": comprador,
-                    "shipments": {
-                        "receiver_address": endereco
-                    },
-                    "barcode": {}
-                },
-                "description": `Pagamento do Pedido #${params.pedido_id} - FoodSupply`,
-                "external_reference": '',
-                "installments": 1,
-                "metadata": {},
-                "payer": {
-                    "entity_type": "individual",
-                    "type": "customer",
-                    "identification": {}
-                },
-                "payment_method_id": "visa",
-                "transaction_amount": _pedido.valor_total
-            };
-    
-            console.log(dados_pedido);
+            });
+
+
+            console.log("PAGTO", pagto);
             return;
     
         } catch (error) {

@@ -9,7 +9,7 @@ module.exports = {
 
         try {
             let result = await model.login(dados);
-            
+
             if(result.length == 0){
     
                 res.status(404).json({erro: true, msg:"Login inválido"});
@@ -126,11 +126,12 @@ module.exports = {
     listarEnderecosUsuario : async (req, res) => {
         try {
 
-            let enderecos = await lista_enderecos(req.usuario);
+            let enderecos = await model.lista_enderecos(req.usuario);
     
             return res.json({erro: false, retorno:enderecos});
             
         } catch (error) {
+            console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor"});
         }
     },

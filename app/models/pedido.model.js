@@ -243,6 +243,40 @@ module.exports = {
 
         return {http: 200, erro: false, msg: "Pedido alterado com sucesso!"};
 
-    }
+    },
 
+    info_pedido : async (pedido_id, usuario_id) => {
+
+        return await sql.execSQL(`SELECT id, 
+                            valor_frete, 
+                            valor_total
+                    FROM venda 
+                    WHERE id = ? 
+                    and usuario_id = ? 
+                    and status = 'aguardando_pagamento'`, [pedido_id, usuario_id]);
+    },
+
+    produtos_venda : async (pedido_id, usuario_id) => {
+
+        return await sql.execSQL(`SELECT vp.produto_id, p.sku, p.fotos, p.titulo, p.descricao, vp.quantidade, vp.valor_unitario, vp.valor_total 
+                                    FROM venda_produto vp
+                                    INNER JOIN venda v on v.id = vp.venda_id
+                                    INNER JOIN produto p on p.id = vp.produto_id
+                                    WHERE vp.venda_id = ?
+                                    and v.usuario_id = ?`, [pedido_id, usuario_id]);
+
+    },
+
+    comprador_venda : async (pedido_id) => {
+
+        return await sql.execSQL(`SELECT u.*, e.*, retornaNomeEstado(e.uf) as estado  FROM venda v 
+                                    INNER JOIN usuario u on u.id = v.usuario_id
+                                    INNER JOIN endereco e on e.id = v.endereco_id
+                                    WHERE v.id = ?`, [pedido_id]);
+
+    },
+
+    endereco_venda : async (pedido_id) => {
+        
+    }
 };

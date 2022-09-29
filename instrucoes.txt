@@ -1,0 +1,2 @@
+Para visualizar o log do HEROKU
+heroku logs --tail -a foodsupply2
