@@ -194,5 +194,11 @@ module.exports = {
             return {erro: true, msg:"Erro interno do servidor"};
         }
 
+    },
+
+    inserir_usuario : async (dados) => {
+        return await sql.insert("usuario", dados, true)
     }
+
+
 }

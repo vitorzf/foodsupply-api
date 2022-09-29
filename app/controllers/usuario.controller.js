@@ -43,7 +43,7 @@ module.exports = {
             if(!checagens.erro){
                 dados.senha = md5(dados.senha);
     
-                let retorno = await sql.insert("usuario", dados, true);
+                let retorno = await model.inserir_usuario(dados);
                 
                 const token = jwt.sign({retorno}, process.env.SECRET, {
                     expiresIn:'30d'
