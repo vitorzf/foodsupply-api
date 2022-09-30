@@ -171,7 +171,7 @@ module.exports = {
             let _pedido = await model.info_pedido(params.pedido_id, params.usuario_id);
     
             if (_pedido.length == 0) {
-                res.status(404).json({ erro: true, retorno: [{ msg: "Pedido não encontrado" }] });
+                res.status(404).json({ erro: true, msg: "Pedido não encontrado"});
                 return;
             }
     
@@ -198,27 +198,54 @@ module.exports = {
             mp.setComprador(objetoComprador);
             mp.setPedido(_pedido);
             mp.setProdutos(result_produtos);
+            mp.setExternalReference(_pedido.identificador_pagamento);
             mp.setValorFrete(_pedido.valor_frete);
 
-            let pagto =  null;
+            let objPagto =  null;
+
+            let sandbox = true;
+
             await mp.checkout().then((response) => {
             
                 let retorno = response.data;
     
-                let url = (this.sandbox ? retorno.sandbox_init_point : retorno.init_point);
+                let url = (sandbox ? retorno.sandbox_init_point : retorno.init_point);
     
-                pagto = {erro: false, url:url, referencia_externa: retorno.external_reference};
+                objPagto = {
+                    venda_id: _pedido.id,
+                    cliente_id: objetoComprador.id,
+                    url: url,
+                    referencia_externa: retorno.external_reference,
+                    dados_criacao: JSON.stringify(retorno),
+                    status: "pending"
+                };
     
             }).catch((err) => {
     
                 console.log(err);
     
-                pagto = {erro: true};
+                res.status(500).json({erro: true, msg:"Erro ao gerar pagamento no Mercado Pago"});
+                return;
     
             });
 
+            model.begin_transaction();
 
-            console.log("PAGTO", pagto);
+            let insertPagamento = await model.inserir_pagamento(objPagto);
+
+            let updatePedido = await model.alterar_status_pedido(_pedido.id, 'pagamento_pendente');
+
+            if(!insertPagamento || !updatePedido){
+                model.rollback_transaction();
+                res.status(400).json({erro: false, msg: "Erro ao gerar pagamento no Mercado Pago"});
+                return;
+            }
+
+            model.commit_transaction();
+
+            delete(objPagto.dados_criacao);
+
+            res.status(200).json({erro:false, retorno: objPagto});
             return;
     
         } catch (error) {

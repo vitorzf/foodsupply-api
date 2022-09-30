@@ -165,10 +165,13 @@ module.exports = {
                                                     v.valor_frete,
                                                     v.vendedor_id,
                                                     COALESCE(u.nome_vendedor, u.usuario) AS nome_vendedor,
-                                                    e.id AS endereco_id
+                                                    e.id AS endereco_id,
+                                                    vp.url as url_pagamento,
+                                                    vp.status as status_mercado_pago
                                                 FROM venda v
                                                 INNER JOIN usuario u ON v.vendedor_id = u.id
                                                 INNER JOIN endereco e ON u.id = e.usuario_id
+                                                LEFT JOIN venda_pagamento as vp on vp.venda_id = v.id
                                                 WHERE v.id = ?
                                                 and v.usuario_id = ?`, [params.pedido_id, params.usuario_id]);
 
@@ -245,11 +248,24 @@ module.exports = {
 
     },
 
+    begin_transaction : async () => {
+        sql.beginTransaction();
+    },
+
+    commit_transaction : async () => {
+        sql.commit();
+    },
+
+    rollback_transaction : async () => {
+        sql.rollback();
+    },
+
     info_pedido : async (pedido_id, usuario_id) => {
 
         return await sql.execSQL(`SELECT id, 
                             valor_frete, 
-                            valor_total
+                            valor_total,
+                            identificador_pagamento
                     FROM venda 
                     WHERE id = ? 
                     and usuario_id = ? 
@@ -269,14 +285,37 @@ module.exports = {
 
     comprador_venda : async (pedido_id) => {
 
-        return await sql.execSQL(`SELECT u.*, e.*, retornaNomeEstado(e.uf) as estado  FROM venda v 
+        return await sql.execSQL(`SELECT u.*, 
+                                    e.cep,
+                                    e.uf,
+                                    e.cidade,
+                                    e.bairro,
+                                    e.endereco,
+                                    e.numero,
+                                    retornaNomeEstado(e.uf) as estado  FROM venda v 
                                     INNER JOIN usuario u on u.id = v.usuario_id
                                     INNER JOIN endereco e on e.id = v.endereco_id
                                     WHERE v.id = ?`, [pedido_id]);
 
     },
 
-    endereco_venda : async (pedido_id) => {
+    inserir_pagamento : async (objPagto) => {
         
+        return await sql.insert("venda_pagamento", objPagto);
+
+    },
+
+    alterar_status_pedido : async (pedido_id, status) => {
+
+        let update = {
+            status: status
+        };
+
+        let where = {
+            id: pedido_id
+        };
+
+        return await sql.update("venda", update, where);
+
     }
 };

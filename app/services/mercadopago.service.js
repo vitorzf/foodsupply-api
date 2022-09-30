@@ -109,9 +109,13 @@ module.exports = class MercadoPago {
         return this.valorFrete;
     }
 
-    getExternalReference(pedido_id) {
+    setExternalReference(external_reference){
+        this.external_reference = external_reference;
+    }
 
-        return crypt.encrypt(pedido_id);
+    getExternalReference() {
+
+        return this.external_reference;
 
     }
 
