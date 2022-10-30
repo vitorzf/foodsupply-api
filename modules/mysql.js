@@ -3,13 +3,13 @@ var con = require("./mysql_pool");
 module.exports = {
     con,
     startTransaction : async () => {
-        con.beginTransaction()
+        await this.execSQL("START TRANSACTION;");
     },
     rollback : async () => {
-        con.rollback();
+        await this.execSQL("ROLLBACK;");
     },
     commit : async () => {
-        con.commit();
+        await this.execSQL("COMMIT;");
     },
     insert : async (tabela, obj, retorna_id = false) => {
         return new Promise((resolve, reject) => {
