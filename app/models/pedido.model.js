@@ -249,7 +249,7 @@ module.exports = {
     },
 
     begin_transaction : async () => {
-        sql.beginTransaction();
+        sql.startTransaction();
     },
 
     commit_transaction : async () => {
