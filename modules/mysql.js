@@ -3,13 +3,46 @@ var con = require("./mysql_pool");
 module.exports = {
     con,
     startTransaction : async () => {
-        await this.execSQL("START TRANSACTION;");
+        let sql = "START TRANSACTION;";
+        return new Promise((resolve, reject) => {
+            con.query(sql, params, (err, result) => {
+               
+                if(err) reject(err);
+                else resolve(result);
+        
+            });
+        }).catch((error) => {
+            console.log("erro de sql");
+            console.log(error);
+        });
     },
     rollback : async () => {
-        await this.execSQL("ROLLBACK;");
+        let sql = "ROLLBACK;";
+        return new Promise((resolve, reject) => {
+            con.query(sql, params, (err, result) => {
+               
+                if(err) reject(err);
+                else resolve(result);
+        
+            });
+        }).catch((error) => {
+            console.log("erro de sql");
+            console.log(error);
+        });
     },
     commit : async () => {
-        await this.execSQL("COMMIT;");
+        let sql = "COMMIT;";
+        return new Promise((resolve, reject) => {
+            con.query(sql, params, (err, result) => {
+               
+                if(err) reject(err);
+                else resolve(result);
+        
+            });
+        }).catch((error) => {
+            console.log("erro de sql");
+            console.log(error);
+        });
     },
     insert : async (tabela, obj, retorna_id = false) => {
         return new Promise((resolve, reject) => {
