@@ -249,15 +249,15 @@ module.exports = {
     },
 
     begin_transaction : async () => {
-        sql.startTransaction();
+        return await sql.startTransaction();
     },
 
     commit_transaction : async () => {
-        sql.commit();
+        return await sql.commit();
     },
 
     rollback_transaction : async () => {
-        sql.rollback();
+        return await sql.rollback();
     },
 
     info_pedido : async (pedido_id, usuario_id) => {
@@ -314,6 +314,9 @@ module.exports = {
         let where = {
             id: pedido_id
         };
+
+        console.log(update);
+        console.log(where);
 
         return await sql.update("venda", update, where);
 

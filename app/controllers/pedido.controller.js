@@ -229,19 +229,19 @@ module.exports = {
     
             });
 
-            model.begin_transaction();
+            await model.begin_transaction();
 
             let insertPagamento = await model.inserir_pagamento(objPagto);
 
             let updatePedido = await model.alterar_status_pedido(_pedido.id, 'pagamento_pendente');
 
             if(!insertPagamento || !updatePedido){
-                model.rollback_transaction();
+                await model.rollback_transaction();
                 res.status(400).json({erro: false, msg: "Erro ao gerar pagamento no Mercado Pago"});
                 return;
             }
 
-            model.commit_transaction();
+            await model.commit_transaction();
 
             delete(objPagto.dados_criacao);
 
