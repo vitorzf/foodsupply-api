@@ -5,7 +5,7 @@ module.exports = {
     startTransaction : async () => {
         let sql = "START TRANSACTION;";
         return new Promise((resolve, reject) => {
-            con.query(sql, params, (err, result) => {
+            con.query(sql, (err, result) => {
                
                 if(err) reject(err);
                 else resolve(result);
@@ -19,7 +19,7 @@ module.exports = {
     rollback : async () => {
         let sql = "ROLLBACK;";
         return new Promise((resolve, reject) => {
-            con.query(sql, params, (err, result) => {
+            con.query(sql, (err, result) => {
                
                 if(err) reject(err);
                 else resolve(result);
@@ -33,7 +33,7 @@ module.exports = {
     commit : async () => {
         let sql = "COMMIT;";
         return new Promise((resolve, reject) => {
-            con.query(sql, params, (err, result) => {
+            con.query(sql, (err, result) => {
                
                 if(err) reject(err);
                 else resolve(result);
