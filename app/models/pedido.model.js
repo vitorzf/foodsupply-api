@@ -224,7 +224,7 @@ module.exports = {
                                             FROM venda 
                                             WHERE id = ? 
                                             and usuario_id = ? 
-                                            and status = 'aguardando_pagamento'`, [params.pedido_id, params.usuario_id]);
+                                            and status = 'aguardando_comprador'`, [params.pedido_id, params.usuario_id]);
 
         if (_pedido.length == 0) {
             return {http: 404, erro: true, msg: "Pedido não encontrado"};
@@ -269,7 +269,7 @@ module.exports = {
                     FROM venda 
                     WHERE id = ? 
                     and usuario_id = ? 
-                    and status = 'aguardando_pagamento'`, [pedido_id, usuario_id]);
+                    and status = 'aguardando_comprador'`, [pedido_id, usuario_id]);
     },
 
     produtos_venda : async (pedido_id, usuario_id) => {

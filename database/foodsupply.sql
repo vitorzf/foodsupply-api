@@ -200,9 +200,9 @@ CREATE TABLE `venda` (
 
 INSERT INTO `venda` (`id`, `status`, `identificador_pagamento`, `vendedor_id`, `usuario_id`, `endereco_id`, `valor_frete`, `valor_total`) VALUES
 (16, 'aguardando_vendedor', '0fcb7606-afb6-4f1b-98f8-3f7797ed', 10, 9, 4, '0.00', 12050),
-(17, 'aguardando_pagamento', '802141b3-17be-47b3-a4c9-dbfc2dac', 10, 9, 4, '160.00', 12210),
+(17, 'aguardando_comprador', '802141b3-17be-47b3-a4c9-dbfc2dac', 10, 9, 4, '160.00', 12210),
 (18, 'aguardando_vendedor', '9fcff94d-f9ba-4e9c-a6e8-2c36e1c0', 10, 9, 4, '0.00', 12050),
-(19, 'aguardando_pagamento', 'd222f52c-78b8-4dc0-ac01-15bb333a', 10, 9, 4, '200.00', 12250);
+(19, 'aguardando_comprador', 'd222f52c-78b8-4dc0-ac01-15bb333a', 10, 9, 4, '200.00', 12250);
 
 -- --------------------------------------------------------
 

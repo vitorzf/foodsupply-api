@@ -90,7 +90,7 @@ module.exports = {
 
         let dados_pedido = busca_dados_pedido[0];
 
-        dados_pedido.status = 'aguardando_pagamento';
+        dados_pedido.status = 'aguardando_comprador';
 
         //Caso o valor do frete ja tenha sido enviado anteriormente, ele remove o total do frete atual
         //define o novo valor de frete e recalcula posteriormente o total do pedido
