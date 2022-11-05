@@ -9,6 +9,8 @@ module.exports = {
 
         console.log(req.body);
 
+        return res.status(200);
+
     }
 
 }
