@@ -1,15 +1,27 @@
-
-
 // LOCALHOST
+
+console.log(process.platform);
 
 var mysql = require('mysql');
 
- var pool = mysql.createPool({
-    host: "localhost",
-    user: "root",
-    database: "foodsupply",
-    password: ""
-});
+var pool;
+
+if(process.platform == 'win32'){
+  pool = mysql.createPool({
+      host: "localhost",
+      user: "root",
+      database: "foodsupply",
+      password: ""
+  });
+}else{
+  pool = mysql.createPool({
+      host: "45.132.157.52",
+      user: "u114347885_foodsupply",
+      database: "u114347885_foodsupply",
+      password: "QS$dyto?$4*m"
+  });
+}
+
 
 // var pool = mysql.createPool({
 //     host: "45.132.157.52",
