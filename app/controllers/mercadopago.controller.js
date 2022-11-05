@@ -1,4 +1,6 @@
 const express = require("express");
+const moment = require("moment");
+
 // const model = require("../models/pedido.model");
 
 module.exports = {
@@ -20,7 +22,7 @@ module.exports = {
         let update_mp = {
             callback: JSON.stringify(retorno_mp),
             status: retorno_mp.status,
-            data_alteracao: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, ''),
+            data_alteracao: moment().utcOffset(-3).format('YYYY-MM-DD HH:mm:ss'),
         };
 
         let where_mp = {

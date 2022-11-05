@@ -1,5 +1,8 @@
-console.log("SETANDO TIMEZONE PARA BRASILIA");
-process.env.TZ = 'America/Sao_Paulo' 
+const moment = require("moment");
+
+console.log("HORARIO DE INÍCIO DO SERVIDOR ->", moment().utcOffset(-3).format('YYYY-MM-DD HH:mm:ss'));
+
+// console.log(new Date().toUTCString('en-US', {timeZone: 'America/Sao_Paulo'}).replace(/T/, ' ').replace(/\..+/, ''),);
 
 const express = require("express");
 require("dotenv-safe").config();
