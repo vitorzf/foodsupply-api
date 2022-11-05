@@ -82,10 +82,6 @@ module.exports = {
 
             }
 
-            if(conflict !== null){
-                console.log(sql);
-            }
-
             let retorno = null;
     
             con.query(sql, (err, result) => {

@@ -302,12 +302,12 @@ module.exports = {
     inserir_pagamento : async (objPagto) => {
         
         let conflict = {
-            url = objPagto.url,
+            url: objPagto.url,
             dados_criacao: objPagto.dados_criacao,
             status: 'pending'
         }
 
-        let str_update = ' data_alteracao = now() ';
+        let str_update = ' ultima_alteracao = now() ';
 
         return await sql.insert("venda_pagamento", objPagto, true, conflict, str_update);
 
