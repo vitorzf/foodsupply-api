@@ -18,7 +18,7 @@ module.exports = {
         //ATUALIZA VENDA
 
         let update_mp = {
-            callback: JSON.parse(retorno_mp),
+            callback: JSON.stringify(retorno_mp),
             status: retorno_mp.status,
             data_alteracao: new Date().toISOString().replace(/T/, ' ').replace(/\..+/, ''),
         };
