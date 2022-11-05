@@ -301,7 +301,15 @@ module.exports = {
 
     inserir_pagamento : async (objPagto) => {
         
-        return await sql.insert("venda_pagamento", objPagto);
+        let conflict = {
+            url = objPagto.url,
+            dados_criacao: objPagto.dados_criacao,
+            status: 'pending'
+        }
+
+        let str_update = ' data_alteracao = now() ';
+
+        return await sql.insert("venda_pagamento", objPagto, true, conflict, str_update);
 
     },
 

@@ -47,7 +47,7 @@ module.exports = {
             console.log(error);
         });
     },
-    insert : async (tabela, obj, retorna_id = false) => {
+    insert : async (tabela, obj, retorna_id = false, conflict = null, str_update = '') => {
         return new Promise((resolve, reject) => {
             let campos = Object.keys(obj).toString();
     
@@ -63,7 +63,29 @@ module.exports = {
             values = into.slice(0, -1);
     
             let sql = `INSERT INTO ${tabela}(${campos}) VALUES (${values})`;
-    
+
+            if(conflict !== null){
+                
+                sql += ` on duplicate key update `;
+
+                Object.keys(conflict).forEach(function(key) {
+                
+                    sql += `${key} = '${conflict[key]}',`;
+        
+                });
+
+            }
+
+            if(str_update.length != 0){
+
+                sql += ` ${str_update}`;
+
+            }
+
+            if(conflict !== null){
+                console.log(sql);
+            }
+
             let retorno = null;
     
             con.query(sql, (err, result) => {

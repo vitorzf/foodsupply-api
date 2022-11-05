@@ -15,7 +15,7 @@ module.exports = {
 
         let retorno_mp = req.query
 
-        console.log(retorno_mp.status);
+        //ATUALIZA VENDA
 
         return res.status(200);
 
