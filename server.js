@@ -1,3 +1,6 @@
+console.log("SETANDO TIMEZONE PARA BRASILIA");
+process.env.TZ = 'America/Sao_Paulo' 
+
 const express = require("express");
 require("dotenv-safe").config();
 

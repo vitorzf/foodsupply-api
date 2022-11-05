@@ -1,7 +1,5 @@
 // LOCALHOST
 
-console.log(process.platform);
-
 var mysql = require('mysql');
 
 var pool;
