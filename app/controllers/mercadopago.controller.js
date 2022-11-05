@@ -7,7 +7,7 @@ module.exports = {
 
         console.log("REQUISIÇÃO RECEBIDA");
 
-        console.log(req.body);
+        console.log(req);
 
         return res.status(200);
 
