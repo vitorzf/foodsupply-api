@@ -233,7 +233,7 @@ module.exports = {
 
             let insertPagamento = await model.inserir_pagamento(objPagto);
 
-            let updatePedido = await model.alterar_status_pedido(_pedido.id, 'pagamento_pendente');
+            let updatePedido = await model.alterar_status_pedido(_pedido.id, 'aguardando_pagamento');
 
             if(!insertPagamento || !updatePedido){
                 await model.rollback_transaction();
