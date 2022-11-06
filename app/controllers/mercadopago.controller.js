@@ -11,7 +11,7 @@ module.exports = {
 
         let retorno_mp = req.query
 
-        let retorno = model.salva_dados_pagamento(retorno_mp);
+        let retorno = await model.salva_dados_pagamento(retorno_mp);
         
         console.log(retorno);
 
