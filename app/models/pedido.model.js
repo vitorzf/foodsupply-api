@@ -334,7 +334,9 @@ module.exports = {
 
         try {
 
-            let busca_pedido_foodsupply = await sql.execSQL("SELECT venda_id FROM venda_pagamento WHERE referencia_externa = ?", {retorno_mp.external_reference});
+            let referencia_externa = retorno_mp.external_reference;
+
+            let busca_pedido_foodsupply = await sql.execSQL("SELECT venda_id FROM venda_pagamento WHERE referencia_externa = ?", {referencia_externa});
 
             if (busca_pedido_foodsupply.length == 0) {
                 return {http: 404, erro: true, msg: "Pedido não encontrado"};
@@ -349,7 +351,7 @@ module.exports = {
             };
 
             let where_mp = {
-                referencia_externa: retorno_mp.external_reference
+                referencia_externa
             };
 
             let status = "";
