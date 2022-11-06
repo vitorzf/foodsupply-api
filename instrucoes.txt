@@ -4,4 +4,8 @@ heroku logs --tail -a foodsupply2
 teste
 
 
+LINK PAGAMENTO PENDENTE:
+https://foodsupply2.herokuapp.com/mercadopago/pending?collection_id=1310598657&collection_status=in_process&payment_id=1310598657&status=in_process&external_reference=802141b3-17be-47b3-a4c9-dbfc2dac&payment_type=credit_card&merchant_order_id=6401427047&preference_id=375334628-0c9f5221-47a7-4ec1-8c1c-7a3e7e0fe0d4&site_id=MLB&processing_mode=aggregator&merchant_account_id=null
+
+LINK PAGAMENTO APROVADO:
 https://foodsupply2.herokuapp.com/mercadopago/success?collection_id=1310589053&collection_status=approved&payment_id=1310589053&status=approved&external_reference=802141b3-17be-47b3-a4c9-dbfc2dac&payment_type=credit_card&merchant_order_id=6393273805&preference_id=375334628-0c9f5221-47a7-4ec1-8c1c-7a3e7e0fe0d4&site_id=MLB&processing_mode=aggregator&merchant_account_id=null

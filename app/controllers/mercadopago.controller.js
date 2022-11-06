@@ -17,7 +17,7 @@ module.exports = {
 
         let retorno = await model.salva_dados_pagamento(retorno_mp);
         
-        console.log(retorno);
+        res.status(retorno.http).json({erro: retorno.erro, msg: retorno.msg});
 
     }
 
