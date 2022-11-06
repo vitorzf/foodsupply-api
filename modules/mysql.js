@@ -205,7 +205,7 @@ module.exports = {
     execSQL : async (sql, params = {}) => {
         return new Promise((resolve, reject) => {
             con.query(sql, params, (err, result) => {
-               
+
                 if(err) reject(err);
                 else resolve(result);
         
