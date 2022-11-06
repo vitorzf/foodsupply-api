@@ -407,6 +407,7 @@ module.exports = {
             return {http: 200, erro:false, msg:"Pagamento atualizado com sucesso"};
         
         } catch (error) {
+            console.log(error);
             await sql.rollback();
             return {http: 500, erro: true, msg: "Erro interno do servidor"};
         }
