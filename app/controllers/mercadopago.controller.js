@@ -1,5 +1,4 @@
-const express = require("express");
-const moment = require("moment");
+const express = require("express")
 
 const model = require("../models/pedido.model");
 
