@@ -4,7 +4,6 @@ module.exports = {
     con,
     startTransaction : async () => {
         let sql = "START TRANSACTION;";
-        console.log(sql);
         return new Promise((resolve, reject) => {
             con.query(sql, (err, result) => {
                
@@ -19,7 +18,6 @@ module.exports = {
     },
     rollback : async () => {
         let sql = "ROLLBACK;";
-        console.log(sql);
         return new Promise((resolve, reject) => {
             con.query(sql, (err, result) => {
                
@@ -28,13 +26,11 @@ module.exports = {
         
             });
         }).catch((error) => {
-            console.log("erro de sql");
             console.log(error);
         });
     },
     commit : async () => {
         let sql = "COMMIT;";
-        console.log(sql);
         return new Promise((resolve, reject) => {
             con.query(sql, (err, result) => {
                
@@ -43,7 +39,6 @@ module.exports = {
         
             });
         }).catch((error) => {
-            console.log("erro de sql");
             console.log(error);
         });
     },
@@ -129,15 +124,11 @@ module.exports = {
             set = set.slice(0, -1);
             
             sql = `UPDATE ${table} SET ${set} WHERE ${where}`;
-    
-            console.log(sql);
 
             let retorno = null;
     
             con.query(sql, (err, result) => {
                 
-                console.log(result);
-
                 if(err){
                     console.log(`Erro ao executar SQL\n SQL: ${err.sql}\n Mensagem: ${err.sqlMessage}`);
                     reject(err);
@@ -211,7 +202,6 @@ module.exports = {
         
             });
         }).catch((error) => {
-            console.log("erro de sql");
             console.log(error);
         });
     }
