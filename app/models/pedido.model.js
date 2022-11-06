@@ -382,13 +382,13 @@ module.exports = {
 
             }
 
-            await this.begin_transaction();
+            await sql.startTransaction();
 
             let update_pagamento = await sql.update("venda_pagamento", update_mp, where_mp);
 
             if(!update_pagamento){
 
-                await this.rollback_transaction();
+                await sql.rollback();
 
                 return {http: 400, erro: true, msg: "Não foi possível alterar o status do pagamento"};
             }
@@ -397,17 +397,17 @@ module.exports = {
 
             if(!update_pagamento){
 
-                await this.rollback_transaction();
+                await this.rollback();
 
                 return {http: 400, erro: true, msg: "Não foi possível alterar o status da venda"};
             }
 
-            await this.commit_transaction();
+            await this.commit();
 
             return {http: 200, msg:"Pagamento atualizado com sucesso"};
         
         } catch (error) {
-            this.rollback_transaction();
+            this.rollback();
             return false;
         }
     }
