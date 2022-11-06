@@ -17,8 +17,10 @@ module.exports = {
 
         let retorno = await model.salva_dados_pagamento(retorno_mp);
         
-        res.status(retorno.http).json({erro: retorno.erro, msg: retorno.msg});
-
+        res.sendFile("../views/retorno_mp.html");
+        
+        res.status(retorno.http);
+            // .json({erro: retorno.erro, msg: retorno.msg});
     }
 
 }
