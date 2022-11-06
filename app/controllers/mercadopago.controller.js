@@ -4,6 +4,10 @@ const model = require("../models/pedido.model");
 
 module.exports = {
 
+    recebidoMP : async (req, res) => {
+        console.log(req);
+    },
+
     callbackMP : async (req, res) => {
 
         console.log("Callback recebido Mercado Pago");
