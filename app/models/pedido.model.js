@@ -397,18 +397,18 @@ module.exports = {
 
             if(!update_pagamento){
 
-                await this.rollback();
+                await sql.rollback();
 
                 return {http: 400, erro: true, msg: "Não foi possível alterar o status da venda"};
             }
 
-            await this.commit();
+            await sql.commit();
 
-            return {http: 200, msg:"Pagamento atualizado com sucesso"};
+            return {http: 200, erro:false, msg:"Pagamento atualizado com sucesso"};
         
         } catch (error) {
-            this.rollback();
-            return false;
+            await sql.rollback();
+            return {http: 500, erro: true, msg: "Erro interno do servidor"};
         }
     }
 };
