@@ -5,7 +5,8 @@ const model = require("../models/pedido.model");
 module.exports = {
 
     recebidoMP : async (req, res) => {
-        console.log(req);
+        console.log(req.query);
+        console.log(req.body);
     },
 
     callbackMP : async (req, res) => {
