@@ -12,4 +12,8 @@ router.get("/venda/:venda_id", guard.auth, controller.dadosVenda);
 
 router.put("/venda/:venda_id/confirmar", guard.auth, controller.confirmarVenda);
 
+router.put("/venda/:venda_id/enviar", guard.auth, controller.confirmarEnvio);
+
+router.put("/venda/:venda_id/entregue", guard.auth, controller.confirmarEntrega);
+
 module.exports = router;

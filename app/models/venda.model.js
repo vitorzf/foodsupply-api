@@ -30,6 +30,8 @@ module.exports = {
                                                 v.valor_total,
                                                 v.valor_frete,
                                                 v.vendedor_id,
+                                                v.rastreio,
+                                                v.url_rastreio,
                                                 e.id AS endereco_id
                                             FROM venda v
                                             INNER JOIN usuario u ON v.vendedor_id = u.id
@@ -103,6 +105,48 @@ module.exports = {
         dados_pedido.valor_frete = params.frete;
 
         let update_pedido = await sql.update("venda", dados_pedido, {id: venda_id});
+
+        if(!update_pedido){
+            return {erro: true, http:400, msg:"Erro ao alterar Pedido"};
+        }
+        
+        return {erro: false, msg:"Pedido alterado com sucesso!"};
+
+    },
+
+    enviar_venda : async (params, update) => {
+
+        let _pedido = await sql.execSQL(`SELECT id FROM venda  WHERE id = ? and vendedor_id = ? and status = 'pagamento_aprovado'`,[params.venda_id, params.usuario_id]);
+
+        if(_pedido.length == 0){
+            return {erro: true, http: 404, retorno: [{msg: "Pedido não encontrado"}]};
+        }
+
+        update.status = "enviado";
+
+        let update_pedido = await sql.update("venda", update, {id: params.venda_id});
+
+        if(!update_pedido){
+            return {erro: true, http:400, msg:"Erro ao alterar Pedido"};
+        }
+        
+        return {erro: false, msg:"Pedido alterado com sucesso!"};
+
+    },
+
+    confirmar_entrega : async (params) => {
+
+        let _pedido = await sql.execSQL(`SELECT id FROM venda  WHERE id = ? and vendedor_id = ? and status = 'enviado'`,[params.venda_id, params.usuario_id]);
+
+        if(_pedido.length == 0){
+            return {erro: true, http: 404, retorno: [{msg: "Pedido não encontrado"}]};
+        }
+
+        let update = {
+            status: "entregue"
+        };
+
+        let update_pedido = await sql.update("venda", update, {id: params.venda_id});
 
         if(!update_pedido){
             return {erro: true, http:400, msg:"Erro ao alterar Pedido"};

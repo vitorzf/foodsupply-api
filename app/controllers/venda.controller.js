@@ -53,6 +53,7 @@ module.exports = {
             res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
         }
     },
+
     confirmarVenda : async (req, res) => {
         let params = req.params;
 
@@ -83,6 +84,73 @@ module.exports = {
             }
     
             res.status(200).json(confirmar_venda);
+            return;
+    
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
+        }
+    },
+    
+    confirmarEnvio : async (req, res) => {
+        let params = req.params;
+
+        params.usuario_id = req.usuario;
+
+        let body = req.body;
+
+        if(params.venda_id === undefined){
+    
+            res.status(400).json({erro: true, msg:"Pedido ID não enviado!"});
+            return;
+    
+        }
+    
+        if(body.rastreio === undefined){
+    
+            res.status(400).json({erro: true, msg:"Informação do rastreio não enviada!"});
+            return;
+    
+        }
+    
+        try {
+    
+            let enviar_venda = await model.enviar_venda(params, body);
+    
+            if(enviar_venda.erro){
+                res.status(enviar_venda.http).json({erro: true, msg: enviar_venda.msg});
+            }
+    
+            res.status(200).json(enviar_venda);
+            return;
+    
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
+        }
+    },
+    
+    confirmarEntrega : async (req, res) => {
+        let params = req.params;
+
+        params.usuario_id = req.usuario;
+
+        if(params.venda_id === undefined){
+    
+            res.status(400).json({erro: true, msg:"Pedido ID não enviado!"});
+            return;
+    
+        }
+    
+        try {
+    
+            let confirmar_entrega = await model.confirmar_entrega(params);
+    
+            if(confirmar_entrega.erro){
+                res.status(confirmar_entrega.http).json({erro: true, msg: confirmar_entrega.msg});
+            }
+    
+            res.status(200).json(confirmar_entrega);
             return;
     
         } catch (error) {
