@@ -103,32 +103,32 @@ module.exports = {
             });
         });
     },
-    update : async (tabela, params, condicao) => {
+    update : async (table, update_fields, condition) => {
         return new Promise((resolve, reject) => {
 
             let set = "";
             let where = "";
             let sql = "";
     
-            Object.keys(params).forEach(function(key) {
+            Object.keys(update_fields).forEach(function(key) {
                 
-                set += `${key} = '${params[key]}',`;
+                set += `${key} = '${update_fields[key]}',`;
     
             });
     
-            Object.keys(condicao).forEach(function(key) {
+            Object.keys(condition).forEach(function(key) {
                 
                 if(where.length != 0){
                     where += " AND ";
                 }
     
-                where += `${key} = '${condicao[key]}'`;
+                where += `${key} = '${condition[key]}'`;
     
             });
     
             set = set.slice(0, -1);
             
-            sql = `UPDATE ${tabela} SET ${set} WHERE ${where}`;
+            sql = `UPDATE ${table} SET ${set} WHERE ${where}`;
     
             console.log(sql);
 

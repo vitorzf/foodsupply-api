@@ -328,5 +328,85 @@ module.exports = {
 
         return await sql.update("venda", update, where);
 
+    },
+
+    salva_dados_pagamento : async(retorno_mp) => {
+
+        try {
+
+            let busca_pedido_foodsupply = await sql.execSQL("SELECT venda_id FROM venda_pagamento WHERE referencia_externa = ?", {referencia_externa: retorno_mp.external_reference});
+
+            if (busca_pedido_foodsupply.length == 0) {
+                return {http: 404, erro: true, msg: "Pedido não encontrado"};
+            }
+    
+            pedido_foodsupply = busca_pedido_foodsupply[0];
+
+            let update_mp = {
+                callback: JSON.stringify(retorno_mp),
+                status: retorno_mp.status,
+                data_alteracao: moment().utcOffset(-3).format('YYYY-MM-DD HH:mm:ss'),
+            };
+
+            let where_mp = {
+                referencia_externa: retorno_mp.external_reference
+            };
+
+            let status = "";
+
+            switch (retorno_mp.status) {
+                case 'approved':
+                    status = 'pagamento_aprovado';
+                    break;
+
+                case 'authorized':
+                case 'in_process':
+                case 'in_mediation':
+                    status = "processando_pagamento";
+                    break;
+
+                case 'rejected':
+                    status = 'pagamento_rejeitado';
+                    break;
+
+                case 'cancelled':
+                    status = 'pagamento_cancelado';
+                    break;
+
+                case 'refunded':
+                case 'charged_back':
+                    status = 'pagamento_extornado';
+                    break;
+
+            }
+
+            await this.begin_transaction();
+
+            let update_pagamento = await sql.update("venda_pagamento", update_mp, where_mp);
+
+            if(!update_pagamento){
+
+                await this.rollback_transaction();
+
+                return {http: 400, erro: true, msg: "Não foi possível alterar o status do pagamento"};
+            }
+
+            await sql.update("venda", {status}, {id: pedido_foodsupply.venda_id});
+
+            if(!update_pagamento){
+
+                await this.rollback_transaction();
+
+                return {http: 400, erro: true, msg: "Não foi possível alterar o status da venda"};
+            }
+
+            await this.commit_transaction();
+
+            return {http: 200, msg:"Pagamento atualizado com sucesso"};
+        
+        } catch (error) {
+            this.rollback_transaction();
+            return false;
+        }
     }
 };
