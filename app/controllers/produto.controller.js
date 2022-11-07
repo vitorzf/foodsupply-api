@@ -111,6 +111,8 @@ module.exports = {
             if(get.titulo !== undefined){
                 filtros += ` AND p.titulo like '%${get.titulo}%' `;
             }
+
+            filtros += ` AND p.usuario_id <> '${req.usuario}' `;
     
             let lista_todos_produtos = await model.lista_todos_produtos(filtros);
     

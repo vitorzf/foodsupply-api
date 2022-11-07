@@ -16,7 +16,7 @@ router.get("/produtos/unidades_medida", controller.listaUnidadesMedida);
 
 router.get("/produtos/categorias", guard.auth, controller.listaCategorias);
 
-router.get("/produtos", controller.listaTodosProdutos);
+router.get("/produtos", guard.auth, controller.listaTodosProdutos);
 
 router.get("/produtos/:produto_id", controller.listaDadosProdutos);
 
