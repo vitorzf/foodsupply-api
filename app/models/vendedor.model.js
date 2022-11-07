@@ -20,6 +20,6 @@ module.exports = {
                                                 u.foto
                                             FROM usuario u
                                             WHERE u.ativo = 1
-                                            having (SELECT id from produto p where p.usuario_id = u.id)`);
+                                            having (SELECT id from produto p where p.usuario_id = u.id limit 1)`);
     }
 }
