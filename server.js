@@ -4,8 +4,9 @@ console.log("HORARIO DE INÍCIO DO SERVIDOR ->", moment().utcOffset(-3).format('
 
 // console.log(new Date().toUTCString('en-US', {timeZone: 'America/Sao_Paulo'}).replace(/T/, ' ').replace(/\..+/, ''),);
 
-const express = require("express");
 require("dotenv-safe").config();
+const express = require("express");
+const cors = require('cors');
 
 const app = express();
 
@@ -18,6 +19,10 @@ let vendedor = require("./routes/Vendedores");
 let pedidos = require("./routes/Pedidos");
 let vendas = require("./routes/Vendas");
 let mercadopago = require("./routes/Mercadopago");
+
+app.use(cors({
+    origin: '*'
+}));
 
 app.use(express.json()); 
 app.use(express.urlencoded({extended: true}));
