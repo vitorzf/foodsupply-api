@@ -19,7 +19,7 @@ module.exports = {
                                                 u.nome_vendedor,
                                                 u.foto
                                             FROM usuario u
-                                            INNER JOIN produto p on u.id = p.usuario_id
-                                            WHERE u.ativo = 1`);
+                                            WHERE u.ativo = 1
+                                            having (SELECT id from produto p where p.usuario_id = u.id)`);
     }
 }
