@@ -20,4 +20,6 @@ router.put("/usuarios/endereco/:endereco_id", guard.auth, controller.alterarEnde
 
 router.put("/usuarios/endereco_principal", guard.auth, controller.alterarEnderecoPrincipal);
 
+router.put("/usuarios/salvar_token_mercado_pago", guard.auth, controller.salvarTokenMP);
+
 module.exports = router;

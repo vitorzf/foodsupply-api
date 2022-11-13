@@ -27,7 +27,7 @@ module.exports = {
             }
     
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor"});
             
         }
@@ -60,7 +60,7 @@ module.exports = {
             res.status(400).json(checagens);
     
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor"});
         }
     
@@ -119,7 +119,7 @@ module.exports = {
             res.json({erro: false, msg: "Endereço cadastrado com Sucesso!", retorno: cadastrar_endereco.retorno});
     
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor"});
         }
     },
@@ -131,7 +131,7 @@ module.exports = {
             return res.json({erro: false, retorno:enderecos});
             
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor"});
         }
     },
@@ -152,7 +152,7 @@ module.exports = {
             res.status(200).json({erro: false, msg: "Endereço alterado com Sucesso!", retorno: alterar_endereco.retorno});
     
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor"});
         }
     },
@@ -170,7 +170,33 @@ module.exports = {
     
             
         } catch (error) {
-            console.log(error);
+            // console.log(error);
+            res.status(500).json({erro: true, msg:"Erro interno do servidor"});
+        }
+    },
+
+    salvarTokenMP : async (req, res) => {
+        try {
+
+            if(req.body.token === undefined){
+                res.status(400).json({erro:true, msg: "Token não enviado"});
+                return;
+            }
+
+            let token = req.body.token;
+
+            let alterar_token = await model.salvar_token_mp(req.usuario, token);
+    
+            if(alterar_token.erro){
+                res.status(400).json(alterar_token);
+                return;
+            }
+    
+            res.status(200).json(alterar_token);
+    
+            
+        } catch (error) {
+            // console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor"});
         }
     }

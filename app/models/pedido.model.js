@@ -266,7 +266,8 @@ module.exports = {
         return await sql.execSQL(`SELECT id, 
                             valor_frete, 
                             valor_total,
-                            identificador_pagamento
+                            identificador_pagamento, 
+                            vendedor_id
                     FROM venda 
                     WHERE id = ? 
                     and usuario_id = ? 
@@ -314,6 +315,12 @@ module.exports = {
 
     },
 
+    buscar_token_mp : async (vendedor_id) => {
+
+        return await sql.execSQL(`SELECT token_mercado_pago FROM usuario WHERE id = ?`, [vendedor_id]);
+
+    },
+
     alterar_status_pedido : async (pedido_id, status) => {
 
         let update = {
@@ -324,8 +331,8 @@ module.exports = {
             id: pedido_id
         };
 
-        console.log(update);
-        console.log(where);
+        // console.log(update);
+        // console.log(where);
 
         return await sql.update("venda", update, where);
 
@@ -408,7 +415,7 @@ module.exports = {
             return {http: 200, erro:false, msg:"Pagamento atualizado com sucesso"};
         
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             await sql.rollback();
             return {http: 500, erro: true, msg: "Erro interno do servidor"};
         }

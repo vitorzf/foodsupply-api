@@ -159,7 +159,7 @@ module.exports = class MercadoPago {
             }
         };
 
-        console.log("Fazendo requisição MP");
+        // console.log("Fazendo requisição MP");
 
         return await axios.post(
             "https://api.mercadopago.com/checkout/preferences",

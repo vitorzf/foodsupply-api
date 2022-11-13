@@ -19,7 +19,7 @@ const definirNomeVendedor = async function(req, res){
         res.status(200).json({erro: false, msg:"Nome de vendedor alterado com sucesso!"});
 
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         res.status(500).json({erro: true, msg:"Erro interno do servidor"});
     }
 

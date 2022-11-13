@@ -171,8 +171,8 @@ const execSQL = async function(sql, params = {}){
     
         });
     }).catch((error) => {
-        console.log("erro de sql");
-        console.log(error);
+        // console.log("erro de sql");
+        // console.log(error);
     })
 
 }

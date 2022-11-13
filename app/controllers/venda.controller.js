@@ -49,7 +49,7 @@ module.exports = {
             return;
             
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
         }
     },
@@ -87,7 +87,7 @@ module.exports = {
             return;
     
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
         }
     },
@@ -125,7 +125,7 @@ module.exports = {
             return;
     
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
         }
     },
@@ -154,7 +154,7 @@ module.exports = {
             return;
     
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
         }
     }

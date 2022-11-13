@@ -198,6 +198,27 @@ module.exports = {
 
     inserir_usuario : async (dados) => {
         return await sql.insert("usuario", dados, true)
+    },
+
+    salvar_token_mp : async (usuario_id, token) => {
+
+        let update = {
+            token_mercado_pago: token
+        };
+
+        let where = {
+            id: usuario_id
+        };
+
+        let fez_update = await sql.update("usuario", update, where);
+
+        if(fez_update){
+            return {erro: false, msg: "Token do Mercado Pago salvo com Sucesso!"};
+        }else{
+            return {erro: true, msg:"Erro ao salvar Token do Mercado Pago"};
+        }
+
+
     }
 
 

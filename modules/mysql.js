@@ -12,8 +12,8 @@ module.exports = {
         
             });
         }).catch((error) => {
-            console.log("erro de sql");
-            console.log(error);
+            // console.log("erro de sql");
+            // console.log(error);
         });
     },
     rollback : async () => {
@@ -26,7 +26,7 @@ module.exports = {
         
             });
         }).catch((error) => {
-            console.log(error);
+            // console.log(error);
         });
     },
     commit : async () => {
@@ -39,7 +39,7 @@ module.exports = {
         
             });
         }).catch((error) => {
-            console.log(error);
+            // console.log(error);
         });
     },
     insert : async (tabela, obj, retorna_id = false, conflict = null, str_update = '') => {
@@ -82,7 +82,7 @@ module.exports = {
             con.query(sql, (err, result) => {
                 
                 if(err){
-                    console.log(`Erro ao executar SQL\n SQL: ${err.sql}\n Mensagem: ${err.sqlMessage}`);
+                    // console.log(`Erro ao executar SQL\n SQL: ${err.sql}\n Mensagem: ${err.sqlMessage}`);
                     reject(err);
                 }else{
                     if(result.affectedRows != 0){
@@ -130,7 +130,7 @@ module.exports = {
             con.query(sql, (err, result) => {
                 
                 if(err){
-                    console.log(`Erro ao executar SQL\n SQL: ${err.sql}\n Mensagem: ${err.sqlMessage}`);
+                    // console.log(`Erro ao executar SQL\n SQL: ${err.sql}\n Mensagem: ${err.sqlMessage}`);
                     reject(err);
                 }else{
     
@@ -174,7 +174,7 @@ module.exports = {
             con.query(sql, (err, result) => {
                 
                 if(err){
-                    console.log(`Erro ao executar SQL\n SQL: ${err.sql}\n Mensagem: ${err.sqlMessage}`);
+                    // console.log(`Erro ao executar SQL\n SQL: ${err.sql}\n Mensagem: ${err.sqlMessage}`);
                     reject(err);
                 }else{
     
@@ -202,7 +202,7 @@ module.exports = {
         
             });
         }).catch((error) => {
-            console.log(error);
+            // console.log(error);
         });
     }
 }

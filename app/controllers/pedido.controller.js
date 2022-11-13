@@ -83,7 +83,7 @@ module.exports = {
             res.status(200).json({ erro: false, pedido_id: venda_id });
 
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({ erro: true, retorno: [{ msg: "Erro interno do servidor!" }] });
         }
     },
@@ -130,7 +130,7 @@ module.exports = {
             res.status(dados_pedido.http).json({erro: true, msg: dados_pedido.msg});
 
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({ erro: true, msg: "Erro interno do servidor!" });
         }
 
@@ -193,7 +193,16 @@ module.exports = {
     
             objetoComprador = result_comprador[0];
 
-            mp.setCredenciais("TEST-2939643210865409-092801-94107258f93eee072c63c0808bf3a281-375334628");
+            let dados_usuario = await model.buscar_token_mp(_pedido.vendedor_id);
+
+            let token_mercado_pago = dados_usuario[0].token_mercado_pago;
+
+            if(token_mercado_pago == null){
+                res.status(400).json({ erro: true, msg: "O vendedor ainda não está pronto para receber pagamentos!" });
+                return;
+            }
+
+            mp.setCredenciais(token_mercado_pago);
             // mp.setCredenciais("APP_USR-2939643210865409-092801-4f44a54d09df67f3121ecec5dd21b7dd-375334628");
             mp.setComprador(objetoComprador);
             mp.setPedido(_pedido);
@@ -203,7 +212,9 @@ module.exports = {
 
             let objPagto =  null;
 
-            let sandbox = true;
+            let isTest = token_mercado_pago.split("-")[0];
+
+            let sandbox = (isTest == "TEST" ? true : false);
 
             await mp.checkout().then((response) => {
             
@@ -222,7 +233,7 @@ module.exports = {
     
             }).catch((err) => {
     
-                console.log(err);
+                // console.log(err);
     
                 res.status(500).json({erro: true, msg:"Erro ao gerar pagamento no Mercado Pago"});
                 return;
@@ -249,7 +260,7 @@ module.exports = {
             return;
     
         } catch (error) {
-            console.log(error);
+            // console.log(error);
             res.status(500).json({ erro: true, msg: "Erro interno do servidor!" });
         }
     }
