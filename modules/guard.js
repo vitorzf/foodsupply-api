@@ -1,28 +1,41 @@
 "use strict";
-const jwt = require("jsonwebtoken");
+// const jwt = require("jsonwebtoken");
+const { decrypt } = require('../app/services/crypt.service')
 
 module.exports = {
     auth : (req, res, next) => {
-        const token = req.headers['x-token'];
+        let token = req.headers['x-token'];
 
         if(token === undefined){
             res.status(401).json({erro: true, msg: "Token necessário!"});
             return;
         }
 
-        jwt.verify(token, process.env.SECRET, function(err, decoded){
+        try {
+            token = token.split(":");
+
+            console.log("tamanho", token.length);
     
-            if(err){
-                console.log("ERRO VERIFICACAO ", err);
-                res.status(401).json({erro: true, msg: "Sem autorização!"});
+            if(token.length != 2){
+                res.status(401).json({erro: true, msg: "Token inválido!"});
                 return;
             }
     
-            req.usuario = decoded.id;
+            let hash = {
+                iv: token[0],
+                content: token[1]
+            };
+    
+            let retorno = decrypt(hash);
+
+            req.usuario = retorno;
     
             next();
     
-        });
+        } catch (error) {
+            res.status(400).json({erro: true, msg: "Erro ao validar Token"});
+            return;
+        }
 
     }
 }

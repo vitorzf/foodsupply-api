@@ -1,7 +1,7 @@
-const express = require("express");
 const md5 = require("md5");
 const jwt = require("jsonwebtoken");
 const model = require("../models/usuario.model");
+const { encrypt } = require('../services/crypt.service.js')
 
 module.exports = {
     login : async (req, res) => {
@@ -16,18 +16,22 @@ module.exports = {
     
             }else{
                 
-                const id = result[0].id;
+                let id = result[0].id;
     
-                const token = jwt.sign({id}, process.env.SECRET, {
-                    expiresIn:'30d'
-                });
+                // const token = jwt.sign({id}, process.env.SECRET, {
+                //     expiresIn:'30d'
+                // });
+
+                let encriptado = await encrypt(id.toString());
+
+                let token = `${encriptado.iv}:${encriptado.content}`;
     
                 res.json({erro: false, token: token, usuario: result[0]});
     
             }
     
         } catch (error) {
-            // console.log(error);
+            console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor"});
             
         }
