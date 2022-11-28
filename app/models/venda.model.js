@@ -69,7 +69,7 @@ module.exports = {
 
     },
 
-    add_frete : async (usuario_id, venda_id) => {
+    add_frete : async (usuario_id, venda_id, valor_frete) => {
 
         let _pedido = await sql.execSQL(`SELECT id FROM venda  WHERE id = ? and vendedor_id = ?`,[venda_id, usuario_id]);
 
@@ -101,8 +101,8 @@ module.exports = {
             dados_pedido.valor_frete = 0;
         }
 
-        dados_pedido.valor_total = dados_pedido.valor_total + params.frete;
-        dados_pedido.valor_frete = params.frete;
+        dados_pedido.valor_total = dados_pedido.valor_total + valor_frete;
+        dados_pedido.valor_frete = valor_frete;
 
         let update_pedido = await sql.update("venda", dados_pedido, {id: venda_id});
 
