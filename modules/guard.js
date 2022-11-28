@@ -13,9 +13,12 @@ module.exports = {
         jwt.verify(token, process.env.SECRET, function(err, decoded){
     
             if(err){
+                console.log(err);
                 res.status(401).json({erro: true, msg: "Sem autorização!"});
                 return;
             }
+
+            console.log(decoded);
     
             req.usuario = decoded.id;
     
