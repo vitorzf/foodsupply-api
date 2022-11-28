@@ -11,15 +11,16 @@ module.exports = {
         return {erro: true};
     },
 
-    lista_todos_vendedores : async () => {
+    lista_todos_vendedores : async (usuario_id) => {
         return await sql.execSQL(`SELECT
-                                                u.id,
-                                                u.email,
-                                                u.usuario,
-                                                u.nome_vendedor,
-                                                u.foto
-                                            FROM usuario u
-                                            WHERE u.ativo = 1
-                                            having (SELECT id from produto p where p.usuario_id = u.id limit 1)`);
+                                        u.id,
+                                        u.email,
+                                        u.usuario,
+                                        u.nome_vendedor,
+                                        u.foto
+                                    FROM usuario u
+                                    WHERE u.ativo = 1
+                                    and u.id <> ${usuario_id}
+                                    having (SELECT id from produto p where p.usuario_id = u.id limit 1)`);
     }
 }

@@ -5,8 +5,6 @@ module.exports = {
     auth : (req, res, next) => {
         const token = req.headers['x-token'];
 
-        console.log("HEADERS", req.headers);
-
         if(token === undefined){
             res.status(401).json({erro: true, msg: "Token necessário!"});
             return;
@@ -19,8 +17,6 @@ module.exports = {
                 res.status(401).json({erro: true, msg: "Sem autorização!"});
                 return;
             }
-
-            console.log("DECODED", decoded);
     
             req.usuario = decoded.id;
     
