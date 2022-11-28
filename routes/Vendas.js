@@ -10,7 +10,7 @@ router.get("/vendas/:status_pedido", guard.auth, controller.listaVendas);
 
 router.get("/venda/:venda_id", guard.auth, controller.dadosVenda);
 
-router.put("/venda/:venda_id/confirmar", guard.auth, controller.confirmarVenda);
+router.put("/venda/:venda_id/add_valor_frete", guard.auth, controller.addValorFrete);
 
 router.put("/venda/:venda_id/enviar", guard.auth, controller.confirmarEnvio);
 

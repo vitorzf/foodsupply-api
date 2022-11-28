@@ -54,7 +54,7 @@ module.exports = {
         }
     },
 
-    confirmarVenda : async (req, res) => {
+    addValorFrete : async (req, res) => {
         let params = req.params;
 
         params.usuario_id = req.usuario;
@@ -77,7 +77,7 @@ module.exports = {
     
         try {
     
-            let confirmar_venda = await model.confirmar_venda(params.usuario_id, params.venda_id);
+            let confirmar_venda = await model.add_frete(params.usuario_id, params.venda_id);
     
             if(confirmar_venda.erro){
                 res.status(confirmar_venda.http).json({erro: true, msg: confirmar_venda.msg});
@@ -87,7 +87,7 @@ module.exports = {
             return;
     
         } catch (error) {
-            // console.log(error);
+            console.log(error);
             res.status(500).json({erro: true, msg:"Erro interno do servidor!"});
         }
     },

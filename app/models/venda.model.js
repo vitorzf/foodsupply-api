@@ -69,7 +69,7 @@ module.exports = {
 
     },
 
-    confirmar_venda : async (usuario_id, venda_id) => {
+    add_frete : async (usuario_id, venda_id) => {
 
         let _pedido = await sql.execSQL(`SELECT id FROM venda  WHERE id = ? and vendedor_id = ?`,[venda_id, usuario_id]);
 
