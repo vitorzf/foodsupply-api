@@ -116,7 +116,9 @@ module.exports = {
                                         v.vendedor_id,
                                         COALESCE(uv.nome_vendedor, uv.usuario) as nome_vendedor,
                                         v.valor_frete,
-                                        v.valor_total
+                                        v.valor_total,
+                                        v.rastreio,
+                                        v.url_rastreio
                                     FROM venda v
                                     INNER JOIN usuario uv ON uv.id = v.vendedor_id
                                     INNER JOIN usuario uc ON uc.id = v.usuario_id
@@ -164,6 +166,8 @@ module.exports = {
                                                     retornaDescricaoStatus(v.status) AS descricao_status,
                                                     v.valor_total,
                                                     v.valor_frete,
+                                                    v.rastreio,
+                                                    v.url_rastreio,
                                                     v.vendedor_id,
                                                     COALESCE(u.nome_vendedor, u.usuario) AS nome_vendedor,
                                                     e.id AS endereco_id,
