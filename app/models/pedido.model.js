@@ -183,26 +183,6 @@ module.exports = {
                                             WHERE v.id = ?
                                             and v.usuario_id = ?`, [params.pedido_id, params.usuario_id]);
 
-        console.log(`SELECT
-        v.id,
-        v.status,
-        retornaDescricaoStatus(v.status) AS descricao_status,
-        v.valor_total,
-        v.valor_frete,
-        v.rastreio,
-        v.url_rastreio,
-        v.vendedor_id,
-        COALESCE(u.nome_vendedor, u.usuario) AS nome_vendedor,
-        e.id AS endereco_id,
-        vp.url as url_pagamento,
-        vp.status as status_mercado_pago
-    FROM venda v
-    INNER JOIN usuario u ON v.usuario_id = u.id
-    INNER JOIN endereco e ON u.id = e.usuario_id and e.id = v.endereco_id
-    LEFT JOIN venda_pagamento as vp on vp.venda_id = v.id
-    WHERE v.id = ${params.pedido_id}
-    and v.usuario_id = ${params.usuario_id}`);
-
         if (result_venda.length == 0) {
             return {http: 404, erro: true, msg: "Pedido não encontrado!"};
         }

@@ -119,6 +119,7 @@ module.exports = {
     
             if(enviar_venda.erro){
                 res.status(enviar_venda.http).json({erro: true, msg: enviar_venda.msg});
+                return;
             }
     
             res.status(200).json(enviar_venda);
