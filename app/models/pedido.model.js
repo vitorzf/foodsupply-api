@@ -160,6 +160,9 @@ module.exports = {
     },
 
     dados_pedido : async (params) => {
+
+        console.log("params pedido", params);
+
         let result_venda = await sql.execSQL(`SELECT
                                                     v.id,
                                                     v.status,
