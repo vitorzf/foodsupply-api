@@ -32,14 +32,6 @@ app.use("/", vendedor);
 app.use("/", pedidos);
 app.use("/", vendas);
 app.use("/", mercadopago);
- 
-// process.on('uncaughtException', (error, origin) => {
-//     if (error?.code === 'ECONNRESET') return;
-//     console.error('UNCAUGHT EXCEPTION');
-//     console.error(error);
-//     console.error(origin);
-//     process.exit(1);
-// });
 
 app.listen(porta, ()=>{
 
