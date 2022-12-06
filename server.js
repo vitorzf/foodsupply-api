@@ -4,7 +4,9 @@ console.log("HORARIO DE INÍCIO DO SERVIDOR ->", moment().utcOffset(-3).format('
 
 // console.log(new Date().toUTCString('en-US', {timeZone: 'America/Sao_Paulo'}).replace(/T/, ' ').replace(/\..+/, ''),);
 
-require("dotenv-safe").config();
+require("dotenv-safe").config({
+    allowEmptyValues: true
+});
 const express = require("express");
 const cors = require('cors');
 
